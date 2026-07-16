@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
-"scripts": {
+  "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "stripe:webhook": "stripe listen --forward-to localhost:5000/api/subscription/webhook",
