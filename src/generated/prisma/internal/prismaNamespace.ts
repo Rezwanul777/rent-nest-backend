@@ -945,6 +945,7 @@ export const RentalRequestScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   propertyId: 'propertyId',
+  status: 'status',
   tenantMessage: 'tenantMessage',
   requestedMoveInDate: 'requestedMoveInDate',
   durationInMonths: 'durationInMonths',
@@ -1072,6 +1073,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RentalRequestStatus'
+ */
+export type EnumRentalRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RentalRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RentalRequestStatus[]'
+ */
+export type ListEnumRentalRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RentalRequestStatus[]'>
     
 
 

@@ -16,3 +16,53 @@ export const UserRole = {
 } as const
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
+export const RentalRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type RentalRequestStatus = (typeof RentalRequestStatus)[keyof typeof RentalRequestStatus]
+
+
+export const RentalStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  TERMINATED: 'TERMINATED'
+} as const
+
+export type RentalStatus = (typeof RentalStatus)[keyof typeof RentalStatus]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const RentalAgreementStatus = {
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  TERMINATED: 'TERMINATED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type RentalAgreementStatus = (typeof RentalAgreementStatus)[keyof typeof RentalAgreementStatus]
+
+
+export const PaymentProvider = {
+  STRIPE: 'STRIPE'
+} as const
+
+export type PaymentProvider = (typeof PaymentProvider)[keyof typeof PaymentProvider]
