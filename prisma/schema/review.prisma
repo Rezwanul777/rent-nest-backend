@@ -1,0 +1,18 @@
+model Review {
+  id                String @id @default(uuid()) @db.Uuid
+  rentalAgreementId String @unique @map("rental_agreement_id") @db.Uuid
+  propertyId        String @map("property_id") @db.Uuid
+  tenantId          String @map("tenant_id") @db.Uuid
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  rentalAgreement RentalAgreement @relation(fields: [rentalAgreementId], references: [id])
+  property        Property        @relation(fields: [propertyId], references: [id])
+  tenant          User            @relation(fields: [tenantId], references: [id])
+
+  @@index([propertyId])
+  @@map("reviews")
+}

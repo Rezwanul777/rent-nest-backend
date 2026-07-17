@@ -3,3 +3,38 @@ enum UserRole {
   LANDLORD
   ADMIN
 }
+
+enum RentalRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum RentalStatus {
+  NOT_STARTED
+  ACTIVE
+  COMPLETED
+  TERMINATED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum RentalAgreementStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  COMPLETED
+  TERMINATED
+  CANCELLED
+}
+
+enum PaymentProvider {
+  STRIPE
+}
