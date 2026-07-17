@@ -4,6 +4,7 @@ import AppError from "../utils/AppError";
 import catchAsync from "../utils/catchAsync";
 import { verifyAccessToken } from "../utils/jwt";
 
+
 const authenticate = catchAsync(async (req, _res, next) => {
   const header = req.headers.authorization;
   const token = header?.startsWith("Bearer ")
