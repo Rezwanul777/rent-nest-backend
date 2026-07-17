@@ -66,9 +66,22 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const result = await authService.getMe(req.user!.id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "User data retrieved successfully",
+    data: req.user,
+  });
+});
+
+
 
 export const authController = {
   register,
   loginUser,
-  refreshToken
+  refreshToken,
+  getMe
 };

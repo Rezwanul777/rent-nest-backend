@@ -141,9 +141,23 @@ const refreshAccessToken = async (payload: string) => {
   return accessToken;
 };
 
+const getMe = async (userId: string) => {
+  const result = await prisma.user.findUnique({
+    where: { id: userId },
+    omit: { password: true },
+  });
+
+  if (!result) {
+    throw new AppError(404, "User not found!");
+  }
+
+  return result;
+};
+
 export const authService = {
   register,
   login,
   refreshAccessToken,
-  
+  getMe
 };
+  
