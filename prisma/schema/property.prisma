@@ -1,0 +1,31 @@
+model Property {
+  id          String   @id @default(uuid()) @db.Uuid
+  landlordId  String   @map("landlord_id") @db.Uuid
+  title       String   @db.VarChar(200)
+  description String
+  rent        Decimal  @db.Decimal(10, 2)
+  location    String   @db.VarChar(100)
+  isAvailable Boolean  @default(true) @map("is_available")
+  amenities   String[]
+  bedrooms    Int?
+  bathrooms   Int?
+  size        Decimal? @db.Decimal(10, 2)
+  images      String[]
+  categoryId  String   @map("category_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  landlord User     @relation(fields: [landlordId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  rentalRequests   RentalRequest[]
+  rentalAgreements RentalAgreement[]
+  reviews          Review[]
+
+  @@index([location])
+  @@index([categoryId])
+  @@index([landlordId])
+  @@index([isAvailable])
+  @@map("properties")
+}
