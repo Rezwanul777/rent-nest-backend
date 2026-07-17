@@ -4,6 +4,7 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { authService } from "./auth.service";
 import { Request, Response } from "express";
+import { SignOptions } from "jsonwebtoken";
 
 const register = catchAsync(async (req, res) => {
   const registeredUserData = await authService.register(req.body);
@@ -40,8 +41,34 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    throw new AppError(401, "Refresh token is missing!");
+  }
+
+  const result = await authService.refreshAccessToken(token);
+
+  res.cookie("accessToken", result, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Token refreshed successfully",
+    data: {
+      refreshed: true,
+    },
+  });
+});
+
 
 export const authController = {
   register,
-  loginUser
+  loginUser,
+  refreshToken
 };

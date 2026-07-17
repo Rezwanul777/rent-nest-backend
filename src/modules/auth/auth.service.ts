@@ -5,7 +5,7 @@ import { prisma } from "../../lib/prisma";
 import config from "../../config";
 import { RegisterPayload , LoginPayload} from "./auth.validation";
 import { SignOptions } from "jsonwebtoken";
-import { createAccessToken, createRefreshToken } from "../../utils/jwt";
+import { createAccessToken, createRefreshToken, verifyRefreshToken } from "../../utils/jwt";
 
 
 const register = async (payload: RegisterPayload) => {
@@ -103,8 +103,47 @@ const login = async (payload: LoginPayload) => {
   };
 };
 
+const refreshAccessToken = async (payload: string) => {
+  const verifiedRefreshToken = verifyRefreshToken(payload);
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: verifiedRefreshToken.userId,
+    },
+    select: {
+      id: true,
+      isActive: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Authentication required. Please login to continue",
+    );
+  }
+
+  if (!user.isActive) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Account is inactive. Please contact support",
+    );
+  }
+
+  const tokenPayload = {
+    userId: user.id,
+    role: user.role,
+  };
+
+  const accessToken = createAccessToken(tokenPayload);
+
+  return accessToken;
+};
+
 export const authService = {
   register,
-  login
+  login,
+  refreshAccessToken,
   
 };
