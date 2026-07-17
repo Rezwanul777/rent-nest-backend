@@ -13,7 +13,7 @@ router.post(
 );
 router.post("/login", validateRequest(loginSchema), authController.loginUser);
 router.get("/me", authenticate, authController.getMe);
-
+router.post("/logout", authenticate, authController.logout);
 router.post("/refresh-token", authController.refreshToken);
 
 export const authRoutes = router;

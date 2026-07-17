@@ -17,7 +17,6 @@ const register = catchAsync(async (req, res) => {
   });
 });
 
-
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.login(req.body);
 
@@ -77,11 +76,30 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const logout = catchAsync(async (_req: Request, res: Response) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
 
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: "strict",
+  });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Logged out successfully",
+  });
+});
 
 export const authController = {
   register,
   loginUser,
   refreshToken,
-  getMe
+  getMe,
+  logout
 };
