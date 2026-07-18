@@ -8,6 +8,8 @@ import globalErrorHandler from "./middlewares/globalErrorHandler";
 import { authRoutes } from "./modules/auth/auth.route";
 import { adminRoutes } from "./modules/admin/admin.route";
 import { categoryRoutes } from "./modules/category/category.route";
+import { propertyRoutes } from "./modules/property/property.route";
+import { rentalRequestRoutes } from "./modules/rental-request/rental-request.route";
 
 
 const app: express.Application = express();
@@ -29,6 +31,8 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/admin",adminRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/properties", propertyRoutes);
+app.use("/api/rental-requests", rentalRequestRoutes);
 
 app.use(notFound);
 

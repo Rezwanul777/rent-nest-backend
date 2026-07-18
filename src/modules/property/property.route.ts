@@ -21,6 +21,39 @@ router.post(
   propertyController.createProperty,
 );
 
+router.patch(
+  "/:propertyId",
+  authenticate,
+  authorize(UserRole.LANDLORD),
+  validateRequest(updatePropertySchema),
+  propertyController.updateProperty,
+);
+
+router.get(
+  "/me/:propertyId",
+  authenticate,
+  authorize(UserRole.LANDLORD),
+  propertyController.getMyPropertyById,
+);
+
+router.patch(
+  "/:propertyId/availability",
+  authenticate,
+  authorize(UserRole.LANDLORD),
+  propertyController.updatePropertyAvailability,
+);
+
+router.get("/", authenticate, propertyController.getProperties);
+
+router.get(
+  "/me",
+  authenticate,
+  authorize(UserRole.LANDLORD),
+  propertyController.getMyProperties,
+);
+
+router.get("/:propertyId", propertyController.getPropertyById);
+
 
 
 
