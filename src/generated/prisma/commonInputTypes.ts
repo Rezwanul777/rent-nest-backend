@@ -209,6 +209,13 @@ export type IntFilter<$PrismaModel = never> = {
   not?: Prisma.NestedIntFilter<$PrismaModel> | number
 }
 
+export type EnumRentalAgreementStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RentalAgreementStatus | Prisma.EnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRentalAgreementStatusFilter<$PrismaModel> | $Enums.RentalAgreementStatus
+}
+
 export type DateTimeNullableFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -234,6 +241,16 @@ export type IntWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedIntFilter<$PrismaModel>
   _max?: Prisma.NestedIntFilter<$PrismaModel>
+}
+
+export type EnumRentalAgreementStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RentalAgreementStatus | Prisma.EnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRentalAgreementStatusWithAggregatesFilter<$PrismaModel> | $Enums.RentalAgreementStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRentalAgreementStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRentalAgreementStatusFilter<$PrismaModel>
 }
 
 export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -514,6 +531,13 @@ export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumRentalAgreementStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RentalAgreementStatus | Prisma.EnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRentalAgreementStatusFilter<$PrismaModel> | $Enums.RentalAgreementStatus
+}
+
 export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -550,6 +574,16 @@ export type NestedFloatFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type NestedEnumRentalAgreementStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RentalAgreementStatus | Prisma.EnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RentalAgreementStatus[] | Prisma.ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRentalAgreementStatusWithAggregatesFilter<$PrismaModel> | $Enums.RentalAgreementStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRentalAgreementStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRentalAgreementStatusFilter<$PrismaModel>
 }
 
 export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {

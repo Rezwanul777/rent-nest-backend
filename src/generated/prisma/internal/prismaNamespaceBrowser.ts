@@ -116,6 +116,7 @@ export const RentalAgreementScalarFieldEnum = {
   durationInMonths: 'durationInMonths',
   leaseStartDate: 'leaseStartDate',
   leaseEndDate: 'leaseEndDate',
+  status: 'status',
   activatedAt: 'activatedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

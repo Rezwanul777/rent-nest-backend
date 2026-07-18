@@ -933,6 +933,7 @@ export const RentalAgreementScalarFieldEnum = {
   durationInMonths: 'durationInMonths',
   leaseStartDate: 'leaseStartDate',
   leaseEndDate: 'leaseEndDate',
+  status: 'status',
   activatedAt: 'activatedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1073,6 +1074,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RentalAgreementStatus'
+ */
+export type EnumRentalAgreementStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RentalAgreementStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RentalAgreementStatus[]'
+ */
+export type ListEnumRentalAgreementStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RentalAgreementStatus[]'>
     
 
 

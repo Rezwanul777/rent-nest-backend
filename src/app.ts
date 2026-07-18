@@ -10,6 +10,8 @@ import { adminRoutes } from "./modules/admin/admin.route";
 import { categoryRoutes } from "./modules/category/category.route";
 import { propertyRoutes } from "./modules/property/property.route";
 import { rentalRequestRoutes } from "./modules/rental-request/rental-request.route";
+import { rentalAgreementRoutes } from "./modules/rental-agreement/rental-agreement.route";
+import { reviewRoutes } from "./modules/review/review.route";
 
 
 const app: express.Application = express();
@@ -33,6 +35,9 @@ app.use("/api/admin",adminRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/rental-requests", rentalRequestRoutes);
+app.use("/api/rental-agreements", rentalAgreementRoutes);
+app.use("/api/reviews", reviewRoutes);
+// app.use("/api/payments", paymentRoutes);
 
 app.use(notFound);
 

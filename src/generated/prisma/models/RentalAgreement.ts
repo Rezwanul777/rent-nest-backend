@@ -45,6 +45,7 @@ export type RentalAgreementMinAggregateOutputType = {
   durationInMonths: number | null
   leaseStartDate: Date | null
   leaseEndDate: Date | null
+  status: $Enums.RentalAgreementStatus | null
   activatedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +60,7 @@ export type RentalAgreementMaxAggregateOutputType = {
   durationInMonths: number | null
   leaseStartDate: Date | null
   leaseEndDate: Date | null
+  status: $Enums.RentalAgreementStatus | null
   activatedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -73,6 +75,7 @@ export type RentalAgreementCountAggregateOutputType = {
   durationInMonths: number
   leaseStartDate: number
   leaseEndDate: number
+  status: number
   activatedAt: number
   createdAt: number
   updatedAt: number
@@ -99,6 +102,7 @@ export type RentalAgreementMinAggregateInputType = {
   durationInMonths?: true
   leaseStartDate?: true
   leaseEndDate?: true
+  status?: true
   activatedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -113,6 +117,7 @@ export type RentalAgreementMaxAggregateInputType = {
   durationInMonths?: true
   leaseStartDate?: true
   leaseEndDate?: true
+  status?: true
   activatedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -127,6 +132,7 @@ export type RentalAgreementCountAggregateInputType = {
   durationInMonths?: true
   leaseStartDate?: true
   leaseEndDate?: true
+  status?: true
   activatedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -228,6 +234,7 @@ export type RentalAgreementGroupByOutputType = {
   durationInMonths: number
   leaseStartDate: Date
   leaseEndDate: Date
+  status: $Enums.RentalAgreementStatus
   activatedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -265,6 +272,7 @@ export type RentalAgreementWhereInput = {
   durationInMonths?: Prisma.IntFilter<"RentalAgreement"> | number
   leaseStartDate?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
   leaseEndDate?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFilter<"RentalAgreement"> | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.DateTimeNullableFilter<"RentalAgreement"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
@@ -283,6 +291,7 @@ export type RentalAgreementOrderByWithRelationInput = {
   durationInMonths?: Prisma.SortOrder
   leaseStartDate?: Prisma.SortOrder
   leaseEndDate?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -304,6 +313,7 @@ export type RentalAgreementWhereUniqueInput = Prisma.AtLeast<{
   durationInMonths?: Prisma.IntFilter<"RentalAgreement"> | number
   leaseStartDate?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
   leaseEndDate?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFilter<"RentalAgreement"> | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.DateTimeNullableFilter<"RentalAgreement"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
@@ -322,6 +332,7 @@ export type RentalAgreementOrderByWithAggregationInput = {
   durationInMonths?: Prisma.SortOrder
   leaseStartDate?: Prisma.SortOrder
   leaseEndDate?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -344,6 +355,7 @@ export type RentalAgreementScalarWhereWithAggregatesInput = {
   durationInMonths?: Prisma.IntWithAggregatesFilter<"RentalAgreement"> | number
   leaseStartDate?: Prisma.DateTimeWithAggregatesFilter<"RentalAgreement"> | Date | string
   leaseEndDate?: Prisma.DateTimeWithAggregatesFilter<"RentalAgreement"> | Date | string
+  status?: Prisma.EnumRentalAgreementStatusWithAggregatesFilter<"RentalAgreement"> | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RentalAgreement"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RentalAgreement"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RentalAgreement"> | Date | string
@@ -355,6 +367,7 @@ export type RentalAgreementCreateInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -373,6 +386,7 @@ export type RentalAgreementUncheckedCreateInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -385,6 +399,7 @@ export type RentalAgreementUpdateInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -403,6 +418,7 @@ export type RentalAgreementUncheckedUpdateInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -418,6 +434,7 @@ export type RentalAgreementCreateManyInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -429,6 +446,7 @@ export type RentalAgreementUpdateManyMutationInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -443,6 +461,7 @@ export type RentalAgreementUncheckedUpdateManyInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -467,6 +486,7 @@ export type RentalAgreementCountOrderByAggregateInput = {
   durationInMonths?: Prisma.SortOrder
   leaseStartDate?: Prisma.SortOrder
   leaseEndDate?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -486,6 +506,7 @@ export type RentalAgreementMaxOrderByAggregateInput = {
   durationInMonths?: Prisma.SortOrder
   leaseStartDate?: Prisma.SortOrder
   leaseEndDate?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -500,6 +521,7 @@ export type RentalAgreementMinOrderByAggregateInput = {
   durationInMonths?: Prisma.SortOrder
   leaseStartDate?: Prisma.SortOrder
   leaseEndDate?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -568,6 +590,10 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type EnumRentalAgreementStatusFieldUpdateOperationsInput = {
+  set?: $Enums.RentalAgreementStatus
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -668,6 +694,7 @@ export type RentalAgreementCreateWithoutPropertyInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -684,6 +711,7 @@ export type RentalAgreementUncheckedCreateWithoutPropertyInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -728,6 +756,7 @@ export type RentalAgreementScalarWhereInput = {
   durationInMonths?: Prisma.IntFilter<"RentalAgreement"> | number
   leaseStartDate?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
   leaseEndDate?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFilter<"RentalAgreement"> | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.DateTimeNullableFilter<"RentalAgreement"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RentalAgreement"> | Date | string
@@ -739,6 +768,7 @@ export type RentalAgreementCreateWithoutRentalRequestInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -755,6 +785,7 @@ export type RentalAgreementUncheckedCreateWithoutRentalRequestInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -783,6 +814,7 @@ export type RentalAgreementUpdateWithoutRentalRequestInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -799,6 +831,7 @@ export type RentalAgreementUncheckedUpdateWithoutRentalRequestInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -811,6 +844,7 @@ export type RentalAgreementCreateWithoutReviewInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -828,6 +862,7 @@ export type RentalAgreementUncheckedCreateWithoutReviewInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -855,6 +890,7 @@ export type RentalAgreementUpdateWithoutReviewInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -872,6 +908,7 @@ export type RentalAgreementUncheckedUpdateWithoutReviewInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -883,6 +920,7 @@ export type RentalAgreementCreateWithoutTenantInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -899,6 +937,7 @@ export type RentalAgreementUncheckedCreateWithoutTenantInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -939,6 +978,7 @@ export type RentalAgreementCreateManyPropertyInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -950,6 +990,7 @@ export type RentalAgreementUpdateWithoutPropertyInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -966,6 +1007,7 @@ export type RentalAgreementUncheckedUpdateWithoutPropertyInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -980,6 +1022,7 @@ export type RentalAgreementUncheckedUpdateManyWithoutPropertyInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -993,6 +1036,7 @@ export type RentalAgreementCreateManyTenantInput = {
   durationInMonths: number
   leaseStartDate: Date | string
   leaseEndDate: Date | string
+  status?: $Enums.RentalAgreementStatus
   activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1004,6 +1048,7 @@ export type RentalAgreementUpdateWithoutTenantInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1020,6 +1065,7 @@ export type RentalAgreementUncheckedUpdateWithoutTenantInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1034,6 +1080,7 @@ export type RentalAgreementUncheckedUpdateManyWithoutTenantInput = {
   durationInMonths?: Prisma.IntFieldUpdateOperationsInput | number
   leaseStartDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseEndDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumRentalAgreementStatusFieldUpdateOperationsInput | $Enums.RentalAgreementStatus
   activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1050,6 +1097,7 @@ export type RentalAgreementSelect<ExtArgs extends runtime.Types.Extensions.Inter
   durationInMonths?: boolean
   leaseStartDate?: boolean
   leaseEndDate?: boolean
+  status?: boolean
   activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1068,6 +1116,7 @@ export type RentalAgreementSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   durationInMonths?: boolean
   leaseStartDate?: boolean
   leaseEndDate?: boolean
+  status?: boolean
   activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1085,6 +1134,7 @@ export type RentalAgreementSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   durationInMonths?: boolean
   leaseStartDate?: boolean
   leaseEndDate?: boolean
+  status?: boolean
   activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1102,12 +1152,13 @@ export type RentalAgreementSelectScalar = {
   durationInMonths?: boolean
   leaseStartDate?: boolean
   leaseEndDate?: boolean
+  status?: boolean
   activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RentalAgreementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rentalRequestId" | "tenantId" | "propertyId" | "monthlyRent" | "durationInMonths" | "leaseStartDate" | "leaseEndDate" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["rentalAgreement"]>
+export type RentalAgreementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rentalRequestId" | "tenantId" | "propertyId" | "monthlyRent" | "durationInMonths" | "leaseStartDate" | "leaseEndDate" | "status" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["rentalAgreement"]>
 export type RentalAgreementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rentalRequest?: boolean | Prisma.RentalRequestDefaultArgs<ExtArgs>
   tenant?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1142,6 +1193,7 @@ export type $RentalAgreementPayload<ExtArgs extends runtime.Types.Extensions.Int
     durationInMonths: number
     leaseStartDate: Date
     leaseEndDate: Date
+    status: $Enums.RentalAgreementStatus
     activatedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1580,6 +1632,7 @@ export interface RentalAgreementFieldRefs {
   readonly durationInMonths: Prisma.FieldRef<"RentalAgreement", 'Int'>
   readonly leaseStartDate: Prisma.FieldRef<"RentalAgreement", 'DateTime'>
   readonly leaseEndDate: Prisma.FieldRef<"RentalAgreement", 'DateTime'>
+  readonly status: Prisma.FieldRef<"RentalAgreement", 'RentalAgreementStatus'>
   readonly activatedAt: Prisma.FieldRef<"RentalAgreement", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"RentalAgreement", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RentalAgreement", 'DateTime'>
