@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type Category = Prisma.CategoryModel
 /**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
  * Model Property
  * 
  */
@@ -42,6 +47,11 @@ export type RentalRequest = Prisma.RentalRequestModel
  * 
  */
 export type Review = Prisma.ReviewModel
+/**
+ * Model StripeWebhookEvent
+ * 
+ */
+export type StripeWebhookEvent = Prisma.StripeWebhookEventModel
 /**
  * Model User
  * 

@@ -1,0 +1,14 @@
+model StripeWebhookEvent {
+    id String @id @default(uuid()) @db.Uuid
+
+    stripeEventId String @unique @map("stripe_event_id")
+    type          String
+
+    processedAt DateTime? @map("processed_at")
+
+    errorMessage String? @map("error_message")
+
+    createdAt DateTime @default(now()) @map("created_at")
+
+    @@map("stripe_webhook_events")
+}

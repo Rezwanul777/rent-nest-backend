@@ -523,10 +523,6 @@ export type EnumRentalRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.RentalRequestStatus
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type RentalRequestCreateNestedManyWithoutTenantInput = {
   create?: Prisma.XOR<Prisma.RentalRequestCreateWithoutTenantInput, Prisma.RentalRequestUncheckedCreateWithoutTenantInput> | Prisma.RentalRequestCreateWithoutTenantInput[] | Prisma.RentalRequestUncheckedCreateWithoutTenantInput[]
   connectOrCreate?: Prisma.RentalRequestCreateOrConnectWithoutTenantInput | Prisma.RentalRequestCreateOrConnectWithoutTenantInput[]
