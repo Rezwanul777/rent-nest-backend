@@ -12,7 +12,7 @@
     "stripe:webhook": "stripe listen --forward-to localhost:5000/api/payments/webhook"
   },
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   },
   "keywords": [],
   "author": "",
