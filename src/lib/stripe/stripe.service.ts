@@ -2,7 +2,15 @@ import config from "../../config";
 import { stripe } from "./stripe";
 import { CreateCheckoutSessionPayload } from "./stripe.interface";
 
-const createCheckoutSession = async (payload: CreateCheckoutSessionPayload) => {
+
+
+type CheckoutResponse = {
+  id: string;
+  url: string | null;
+};
+
+
+const createCheckoutSession = async (payload: CreateCheckoutSessionPayload): Promise<CheckoutResponse> => {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
