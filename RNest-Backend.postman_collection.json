@@ -1,0 +1,863 @@
+{
+  "info": {
+    "_postman_id": "fdf1543a-1681-468b-9a73-cf80d197fc58",
+    "name": "RNest-Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "19131499"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "//Tenant\r\n// {\r\n//  \"email\":\"nabila.tenant@gmail.com\",\r\n//   \"password\": \"Tenant@123\"\r\n// }\r\n\r\n//admin\r\n// {\r\n//    \"email\": \"ayaan.bin@gmail.com\",\r\n//    \"password\": \"admin-nest@123\"\r\n// }\r\n//landlord\r\n{\r\n   \"email\": \"tanvir.landlord@gmail.com\",\r\n   \"password\": \"Landlord@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/auth/login",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refreshToken",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"email\": \"nabila.tenant@gmail.com\",\r\n  \"password\": \"Tenant@123\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/auth/refresh-token",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getCurrentUser",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/auth/me",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/auth/logout",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"serajul Islam\",\r\n  \"email\": \"serajul.tenant@gmail.com\",\r\n  \"password\": \"Tenant@123\",\r\n  \"role\": \"TENANT\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/auth/register",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get-Users",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"email\": \"nabila.tenant@gmail.com\",\r\n  \"password\": \"Tenant@123\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/admin/users",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"isActive\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/admin/users/6d62a022-0fd4-4e71-9208-068d7da591aa",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "6d62a022-0fd4-4e71-9208-068d7da591aa"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "catagories",
+      "item": [
+        {
+          "name": "create-category",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Student Basha\",\r\n  \"description\": \"Student Flat available for monthly rental.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/categories",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all catagories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/categories",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update categories",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\":  \"Bachelor Basha\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/categories/07b4a852-c19f-4b6e-a62c-89b1c0a25da2",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "07b4a852-c19f-4b6e-a62c-89b1c0a25da2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rental-Request",
+      "item": [
+        {
+          "name": "create Rental Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n      \"propertyId\": \"06bc370a-c0af-4c0c-bc60-ef68bfc7180e\",\r\n      \"tenantMessage\": \"I am interested\",\r\n      \"requestedMoveInDate\": \"2026-09-01\",\r\n      \"durationInMonths\": 36\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/rental-requests",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "rental-requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Rental Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/rental-requests",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "rental-requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update Rental Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"APPROVED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/rental-requests/4dfa2378-bd38-47ee-bf6f-9872c16bf215",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "rental-requests",
+                "4dfa2378-bd38-47ee-bf6f-9872c16bf215"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "property",
+      "item": [
+        {
+          "name": "update property",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Budget Friendly Bachelor Flat in Uttara\",\r\n  \"description\": \"A clean and affordable flat suitable for bachelors  students near public transport.\",\r\n  \"rent\": 22000\r\n  \r\n  \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/properties/2501593c-50fd-4c5b-8825-bb8822979797",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "properties",
+                "2501593c-50fd-4c5b-8825-bb8822979797"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get My Single Property",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Budget Friendly Bachelor Flat in Uttara\",\r\n  \"description\": \"A clean and affordable flat suitable for bachelors  students near public transport.\",\r\n  \"rent\": 22000\r\n  \r\n  \r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties/me/2501593c-50fd-4c5b-8825-bb8822979797",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties",
+                "me",
+                "2501593c-50fd-4c5b-8825-bb8822979797"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get MY Properties",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Budget Friendly Bachelor Flat in Mirpur\",\r\n  \"description\": \"A clean and affordable flat suitable for bachelors or university students near public transport.\",\r\n  \"rent\": 12000,\r\n  \"location\": \"Mirpur 10, Dhaka\",\r\n  \"isAvailable\": true,\r\n  \"amenities\": [\r\n    \"Water\",\r\n    \"Gas\",\r\n    \"Security\",\r\n    \"Balcony\"\r\n  ],\r\n  \"bedrooms\": 1,\r\n  \"bathrooms\": 1,\r\n  \"size\": 650,\r\n  \"images\": [\r\n    \"https://example.com/images/mirpur-flat-1.jpg\"\r\n  ],\r\n  \"categoryId\": \"c6d1fc84-8573-4543-9b97-0a2efb3967f1\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties/me?page=1&limit=10",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties",
+                "me"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get properties",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Budget Friendly Bachelor Flat in Mirpur\",\r\n  \"description\": \"A clean and affordable flat suitable for bachelors or university students near public transport.\",\r\n  \"rent\": 12000,\r\n  \"location\": \"Mirpur 10, Dhaka\",\r\n  \"isAvailable\": true,\r\n  \"amenities\": [\r\n    \"Water\",\r\n    \"Gas\",\r\n    \"Security\",\r\n    \"Balcony\"\r\n  ],\r\n  \"bedrooms\": 1,\r\n  \"bathrooms\": 1,\r\n  \"size\": 650,\r\n  \"images\": [\r\n    \"https://example.com/images/mirpur-flat-1.jpg\"\r\n  ],\r\n  \"categoryId\": \"c6d1fc84-8573-4543-9b97-0a2efb3967f1\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties?minRent=10000&maxRent=40000&search=clean",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties"
+              ],
+              "query": [
+                {
+                  "key": "minRent",
+                  "value": "10000"
+                },
+                {
+                  "key": "maxRent",
+                  "value": "40000"
+                },
+                {
+                  "key": "search",
+                  "value": "clean"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Single Property",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Budget Friendly Bachelor Flat in Uttara\",\r\n  \"description\": \"A clean and affordable flat suitable for bachelors  students near public transport.\",\r\n  \"rent\": 22000\r\n  \r\n  \r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties/d2a99cd4-fdbf-40ce-a825-962b603d0b50",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties",
+                "d2a99cd4-fdbf-40ce-a825-962b603d0b50"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "property availability",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties/515a3c7f-4dca-4db8-9fed-4466a3384260/availability",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties",
+                "515a3c7f-4dca-4db8-9fed-4466a3384260",
+                "availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create property",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Elegant 2 Bedroom Apartment with Balcony\",\r\n  \"description\": \"A stylish apartment featuring modern interiors, a spacious balcony, and plenty of natural light. Conveniently located near shopping malls, hospitals, and public transportation.\",\r\n  \"rent\": 32000,\r\n  \"location\": \"Mirpur DOHS, Dhaka\",\r\n  \"amenities\": [\r\n    \"WiFi\",\r\n    \"Air Conditioning\",\r\n    \"Parking\",\r\n    \"24/7 Security\",\r\n    \"Elevator\",\r\n    \"Generator Backup\",\r\n    \"CCTV Surveillance\"\r\n  ],\r\n  \"bedrooms\": 2,\r\n  \"bathrooms\": 2,\r\n  \"size\": 1350,\r\n  \"images\": [\r\n    \"https://images.unsplash.com/photo-1484154218962-a197022b5858\",\r\n    \"https://images.unsplash.com/photo-1494526585095-c41746248156\"\r\n  ],\r\n  \"categoryId\": \"2393e6eb-bd3c-4fc8-8610-b45677e87e39\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete property",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/properties/74dfa223-5a49-4a46-9ad7-1611c70a44e6",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "properties",
+                "74dfa223-5a49-4a46-9ad7-1611c70a44e6"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rental-agreement",
+      "item": [
+        {
+          "name": "get Rental agreements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/rental-agreements",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "rental-agreements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update Rental Agreement Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"COMPLETED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/rental-agreements/6a13a56a-5696-4e2d-8f55-81012139920d/update",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "rental-agreements",
+                "6a13a56a-5696-4e2d-8f55-81012139920d",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "review",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n    {\r\n    \"rating\": 4,\r\n    \"comment\": \"Overall good experience\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/reviews/dd33af1c-93af-4016-83cd-3522c1cc9f30",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "dd33af1c-93af-4016-83cd-3522c1cc9f30"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Reviews by property ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n    {\r\n    \"rating\": 4,\r\n    \"comment\": \"Overall good experience\"\r\n}\r\n"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/reviews/515a3c7f-4dca-4db8-9fed-4466a3384260",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "515a3c7f-4dca-4db8-9fed-4466a3384260"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "payment",
+      "item": [
+        {
+          "name": "create checkout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"email\": \"nabila.tenant@gmail.com\",\r\n  \"password\": \"Tenant@123\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/payments/rental-agreements/6a13a56a-5696-4e2d-8f55-81012139920d/checkout",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "rental-agreements",
+                "6a13a56a-5696-4e2d-8f55-81012139920d",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get payments",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"email\": \"nabila.tenant@gmail.com\",\r\n  \"password\": \"Tenant@123\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/payments/f9947744-5c00-4027-81ff-11c5a5844f59",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "f9947744-5c00-4027-81ff-11c5a5844f59"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get payment ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"email\": \"nabila.tenant@gmail.com\",\r\n  \"password\": \"Tenant@123\"\r\n}"
+            },
+            "url": {
+              "raw": "https://rnest-backend.vercel.app/api/payments/",
+              "protocol": "https",
+              "host": [
+                "rnest-backend",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
