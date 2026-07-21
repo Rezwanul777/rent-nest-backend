@@ -9,7 +9,7 @@
 | Resource | Link |
 | :--- | :--- |
 | **Backend Repository** | [GitHub Link](https://github.com/Rezwanul777/rent-nest-backend) |
-| **Live API** | [Render Deployment](https://rnest-backend.vercel.app/) |
+| **Live API** | [Vercel Deployment](https://rnest-backend.vercel.app/) |
 | **API Documentation** | [Postman Docs]() |
 | **Demo Video** | [Google Drive](https://drive.google.com/file/d/171O9Lu37FW3t6hwf1VSB0-DVu0dMTh3W/view?usp=sharing) |
 
