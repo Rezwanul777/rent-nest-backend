@@ -201,3 +201,380 @@ Rezwanul Haque
 📄 License
 
 This is an educational project developed as part of a backend development assignment.
+
+
+
+# 🏢 RentNest Backend
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/Node.js-24-green" />
+<img src="https://img.shields.io/badge/Express.js-Backend-black" />
+<img src="https://img.shields.io/badge/TypeScript-5-blue" />
+<img src="https://img.shields.io/badge/PostgreSQL-Database-blue" />
+<img src="https://img.shields.io/badge/Prisma-ORM-purple" />
+<img src="https://img.shields.io/badge/Stripe-Payment-purple" />
+
+</p>
+
+## 🚀 Overview
+
+**RentNest** is a scalable rental management platform backend designed to handle the complete rental lifecycle between property owners and tenants.
+
+The system provides secure authentication, property management, rental requests, digital agreements, online payments, reviews, and administrative operations.
+
+Built with a **modular architecture**, this backend focuses on scalability, maintainability, security, and real-world production practices.
+
+---
+
+# 🌟 Key Highlights
+
+✅ Modular Backend Architecture
+✅ TypeScript Based Development
+✅ Prisma ORM with PostgreSQL
+✅ JWT Authentication System
+✅ Role-Based Authorization
+✅ Stripe Payment Integration
+✅ Webhook Based Payment Verification
+✅ Advanced Searching & Filtering
+✅ Production Ready API Structure
+
+---
+
+# 🔗 Project Links
+
+| Resource           | Link                                             |
+| ------------------ | ------------------------------------------------ |
+| Backend Repository | https://github.com/Rezwanul777/rent-nest-backend |
+| Live API           | https://rnest-backend.vercel.app                 |
+| API Documentation  | Postman Documentation                            |
+| Demo Video         | Google Drive                                     |
+
+---
+
+# 🏗 System Architecture
+
+```
+Client Application
+        |
+        |
+        ↓
+Express REST API
+        |
+        |
+        ↓
+Service Layer
+        |
+        |
+        ↓
+Prisma ORM
+        |
+        |
+        ↓
+PostgreSQL Database
+
+```
+
+### Architectural Approach
+
+The project follows:
+
+* Domain Driven Modular Architecture
+* Controller-Service-Repository Pattern
+* Separation of Business Logic
+* Reusable Middleware System
+* Centralized Error Handling
+* Scalable Folder Structure
+
+---
+
+# 📂 Project Structure
+
+```
+src
+│
+├── modules
+│   ├── auth
+│   ├── user
+│   ├── property
+│   ├── category
+│   ├── rental-request
+│   ├── rental-agreement
+│   ├── payment
+│   ├── review
+│   └── admin
+│
+├── middleware
+├── config
+├── routes
+├── utils
+├── types
+├── lib
+│
+├── app.ts
+└── server.ts
+
+```
+
+---
+
+# ✨ Core Features
+
+## 🔐 Authentication & Authorization
+
+* JWT Access Token
+* Refresh Token Rotation
+* HTTP-only Cookie Security
+* Password Encryption
+* Role Based Access Control
+
+Supported Roles:
+
+```
+ADMIN
+LANDLORD
+TENANT
+```
+
+---
+
+## 🏠 Property Management
+
+Landlords can:
+
+* Create properties
+* Update property details
+* Delete properties
+* Manage availability
+
+Tenants can:
+
+* Browse properties
+* Search properties
+* Filter properties
+* View property details
+
+---
+
+## 📄 Rental Workflow
+
+```
+User Registration
+        ↓
+Authentication
+        ↓
+Property Listing
+        ↓
+Rental Request
+        ↓
+Owner Approval
+        ↓
+Rental Agreement
+        ↓
+Stripe Payment
+        ↓
+Active Rental
+        ↓
+Review Submission
+
+```
+
+---
+
+## 💳 Payment System
+
+Implemented:
+
+* Stripe Checkout Session
+* Secure Payment Processing
+* Stripe Webhook Verification
+* Payment Status Management
+
+Webhook Flow:
+
+```
+Stripe
+  |
+  ↓
+Webhook Endpoint
+  |
+  ↓
+Payment Verification
+  |
+  ↓
+Database Update
+
+```
+
+---
+
+## ⭐ Review System
+
+Features:
+
+* Rating system
+* User feedback
+* Property reviews
+* Review management
+
+---
+
+# 🛠 Technology Stack
+
+## Backend
+
+* Node.js
+* Express.js
+* TypeScript
+
+## Database
+
+* PostgreSQL
+* Prisma ORM
+
+## Security
+
+* JWT
+* bcrypt
+* Zod Validation
+
+## Payment
+
+* Stripe API
+
+## Deployment
+
+* Vercel
+* Neon PostgreSQL
+
+---
+
+# ⚙️ Local Development Setup
+
+### Clone Repository
+
+```bash
+git clone https://github.com/Rezwanul777/rent-nest-backend.git
+
+cd rent-nest-backend
+```
+
+### Install Packages
+
+```bash
+npm install
+```
+
+### Environment Setup
+
+Create `.env` file:
+
+```env
+PORT=
+
+DATABASE_URL=
+
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+
+JWT_ACCESS_EXPIRES_IN=
+JWT_REFRESH_EXPIRES_IN=
+
+BCRYPT_SALT_ROUNDS=
+
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+STRIPE_SUCCESS_URL=
+STRIPE_CANCEL_URL=
+```
+
+---
+
+# 🗄 Database Migration
+
+Generate Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Run Migration:
+
+```bash
+npx prisma migrate dev
+```
+
+Seed Database:
+
+```bash
+npx prisma db seed
+```
+
+---
+
+# 🧪 API Documentation
+
+Complete API documentation is available through Postman.
+
+Includes:
+
+* Authentication APIs
+* Property APIs
+* Rental APIs
+* Payment APIs
+* Review APIs
+* Admin APIs
+
+---
+
+# 🔒 Security Practices
+
+Implemented:
+
+✅ JWT Authentication
+✅ Password Hashing
+✅ Request Validation
+✅ Role Authorization
+✅ Secure Cookies
+✅ Environment Variable Protection
+✅ Error Handling Middleware
+
+---
+
+# 🚀 Deployment
+
+| Service  | Platform        |
+| -------- | --------------- |
+| Backend  | Vercel          |
+| Database | Neon PostgreSQL |
+| ORM      | Prisma          |
+| Payment  | Stripe          |
+
+---
+
+# 📈 Future Roadmap
+
+* [ ] Email Notification System
+* [ ] Cloud Image Upload
+* [ ] Advanced Analytics Dashboard
+* [ ] Redis Cache Integration
+* [ ] API Rate Limiting
+* [ ] Automated Testing
+* [ ] Docker Deployment
+
+---
+
+# 👨‍💻 Author
+
+## Rezwanul Haque
+
+**Backend Developer | MERN Stack Developer**
+
+Focused on building scalable and maintainable web applications.
+
+---
+
+# 📄 License
+
+This project is developed for educational and portfolio purposes.
