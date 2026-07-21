@@ -178,6 +178,21 @@ const listProperties = async (query: GetPropertiesQuery, scope: Scope) => {
   };
 };
 
+const deleteProperty = async (propertyId: string) => {
+    const propertyExists = await prisma.property.findUniqueOrThrow({
+        where: {
+            id: propertyId
+        }
+    });
+
+    const deletedProperty = await prisma.property.delete({
+        where: {
+            id: propertyExists.id
+        }
+    });
+    return null;
+}
+
 
 export const propertyService = {
 
@@ -187,6 +202,7 @@ export const propertyService = {
   updateProperty,
   updatePropertyAvailability,
   listProperties,
+  deleteProperty
 };
   
 

@@ -134,6 +134,19 @@ const getProperties = catchAsync(async (req, res) => {
   });
 });
 
+const deleteProperty = catchAsync(async (req, res) => {
+  
+  const propertyId = req.params.propertyId as string;
+
+  await propertyService.deleteProperty(propertyId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Property deleted successfully",
+  });
+});
+
 
 
 export const propertyController = {
@@ -144,5 +157,5 @@ export const propertyController = {
   updatePropertyAvailability,
   getMyProperties,
   getProperties,
-  
+  deleteProperty
 };

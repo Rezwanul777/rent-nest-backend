@@ -54,6 +54,13 @@ router.get(
 
 router.get("/:propertyId", propertyController.getPropertyById);
 
+router.delete(
+  "/:propertyId",
+  authenticate,
+  authorize(UserRole.LANDLORD),
+  propertyController.deleteProperty,
+);
+
 
 
 
