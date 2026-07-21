@@ -23,7 +23,7 @@
 | :--- | :--- |
 | **Backend Repository** | [GitHub Link](https://github.com/Rezwanul777/rent-nest-backend) |
 | **Live API** | [Vercel Deployment](https://rnest-backend.vercel.app/) |
-| **API Documentation** | [Postman Docs]() |
+| **API Documentation** | [Postman Docs](https://github.com/Rezwanul777/rent-nest-backend/blob/main/RNest-Backend.postman_collection.json) |
 | **Demo Video** | [Google Drive](https://drive.google.com/file/d/171O9Lu37FW3t6hwf1VSB0-DVu0dMTh3W/view?usp=sharing) |
 
 
@@ -221,4 +221,3 @@ Rezwanul Haque
 
 
 
-t
