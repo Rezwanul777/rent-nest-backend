@@ -762,13 +762,19 @@ const listProperties = async (query, scope) => {
 		listings
 	};
 };
+const deleteProperty$1 = async (propertyId) => {
+	const propertyExists = await prisma.property.findUniqueOrThrow({ where: { id: propertyId } });
+	await prisma.property.delete({ where: { id: propertyExists.id } });
+	return null;
+};
 const propertyService = {
 	createProperty: createProperty$1,
 	getMyPropertyById: getMyPropertyById$1,
 	getPropertyById: getPropertyById$1,
 	updateProperty: updateProperty$1,
 	updatePropertyAvailability: updatePropertyAvailability$1,
-	listProperties
+	listProperties,
+	deleteProperty: deleteProperty$1
 };
 const propertyController = {
 	createProperty: catchAsync(async (req, res) => {
@@ -850,6 +856,15 @@ const propertyController = {
 				meta
 			}
 		});
+	}),
+	deleteProperty: catchAsync(async (req, res) => {
+		const propertyId = req.params.propertyId;
+		await propertyService.deleteProperty(propertyId);
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Property deleted successfully"
+		});
 	})
 };
 //#endregion
@@ -862,6 +877,7 @@ router$4.patch("/:propertyId/availability", authenticate, authorize(UserRole.LAN
 router$4.get("/", authenticate, propertyController.getProperties);
 router$4.get("/me", authenticate, authorize(UserRole.LANDLORD), propertyController.getMyProperties);
 router$4.get("/:propertyId", propertyController.getPropertyById);
+router$4.delete("/:propertyId", authenticate, authorize(UserRole.LANDLORD), propertyController.deleteProperty);
 const propertyRoutes = router$4;
 //#endregion
 //#region src/modules/rental-request/rental-request.query.ts

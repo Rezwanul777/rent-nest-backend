@@ -8,16 +8,16 @@
 
 | Resource | Link |
 | :--- | :--- |
-| **Backend Repository** | [GitHub Link](https://github.com/thedev-mohammadali/rent-nest-backend.git) |
-| **Live API** | [Render Deployment](https://rent-nest-backend-1.onrender.com/) |
-| **API Documentation** | [Postman Docs](https://documenter.getpostman.com/view/29072367/2sBY4LQgiB) |
-| **Demo Video** | [Google Drive](https://drive.google.com/file/d/1f0bPzB-JE_i_1FODzWciud64w_VZqTPu/view?usp=sharing) |
-| **ERD Diagram** | [DrawSQL](https://drawsql.app/teams/mohammad-ali-thedev/diagrams/rentnest) |
+| **Backend Repository** | [GitHub Link](https://github.com/Rezwanul777/rent-nest-backend) |
+| **Live API** | [Render Deployment](https://rnest-backend.vercel.app/) |
+| **API Documentation** | [Postman Docs]() |
+| **Demo Video** | [Google Drive](https://drive.google.com/file/d/171O9Lu37FW3t6hwf1VSB0-DVu0dMTh3W/view?usp=sharing) |
+
 
 ### 🔐 Demo Credentials
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| **Admin** | `admin@rentnest.com` | `Admin123@` |
+| **Admin** | `ayaan.bin@gmail.com` | `admin-nest@123` |
 
 ---
 
@@ -99,7 +99,8 @@ src/
     Clone the repository:
     Bash
 
-    git clone [https://github.com/thedev-mohammadali/rent-nest-backend.git](https://github.com/thedev-mohammadali/rent-nest-backend.git)
+    git clone [https://github.com/Rezwanul777/rent-nest-backend)
+
     cd rent-nest-backend
 
     Install dependencies:
@@ -176,9 +177,9 @@ Please refer to the published Postman Documentation linked at the top for detail
 Register ➔ Login ➔ Create Property ➔ Rental Request ➔ Rental Agreement ➔ Stripe Payment ➔ Agreement Activated ➔ Review
 ☁️ Deployment
 
-    Backend: Render
+    Backend: Vercel
 
-    Database: Neon PostgreSQL
+    Database:  PostgreSQL ORM:PRISMA
 
     Payments: Stripe
 
