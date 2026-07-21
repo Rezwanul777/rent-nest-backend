@@ -205,18 +205,17 @@ This is an educational project developed as part of a backend development assign
 
 
 # 🏢 RentNest Backend
-
+</> Markdown
 <p align="center">
 
-<img src="https://img.shields.io/badge/Node.js-24-green" />
-<img src="https://img.shields.io/badge/Express.js-Backend-black" />
-<img src="https://img.shields.io/badge/TypeScript-5-blue" />
-<img src="https://img.shields.io/badge/PostgreSQL-Database-blue" />
-<img src="https://img.shields.io/badge/Prisma-ORM-purple" />
-<img src="https://img.shields.io/badge/Stripe-Payment-purple" />
+![Node.js](https://img.shields.io/badge/Node.js-24-green)
+![Express.js](https://img.shields.io/badge/Express.js-Backend-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-purple)
+![Stripe](https://img.shields.io/badge/Stripe-Payment-purple)
 
 </p>
-
 ## 🚀 Overview
 
 **RentNest** is a scalable rental management platform backend designed to handle the complete rental lifecycle between property owners and tenants.
