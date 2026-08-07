@@ -46,20 +46,41 @@ const getPropertyById = async (propertyId: string) => {
   return property;
 };
 
-const getMyPropertyById = async (propertyId: string, landlordId: string) => {
-  const property = await prisma.property.findFirst({
-    where: {
-      id: propertyId,
-      landlordId,
+const getMyPropertyById = async (propertyId: string, landlordId: string) =>
+  await prisma.property.findFirst({
+  where: {
+    id: propertyId,
+    isAvailable: true,
+  },
+  include: {
+    category: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
     },
-  });
-
-  if (!property) {
-    throw new AppError(httpStatus.NOT_FOUND, "Property not found");
-  }
-
-  return property;
-};
+    landlord: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+    reviews: {
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    },
+  },
+});
 
 const updateProperty = async (
   propertyId: string,
@@ -178,20 +199,30 @@ const listProperties = async (query: GetPropertiesQuery, scope: Scope) => {
   };
 };
 
-const deleteProperty = async (propertyId: string) => {
-    const propertyExists = await prisma.property.findUniqueOrThrow({
-        where: {
-            id: propertyId
-        }
-    });
+const deleteProperty = async (
+  propertyId: string,
+  landlordId: string,
+) => {
+  const property = await prisma.property.findFirst({
+    where: {
+      id: propertyId,
+      landlordId,
+    },
+  });
 
-    const deletedProperty = await prisma.property.delete({
-        where: {
-            id: propertyExists.id
-        }
-    });
-    return null;
-}
+  if (!property) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Property not found or access denied",
+    );
+  }
+
+  await prisma.property.delete({
+    where: {
+      id: propertyId,
+    },
+  });
+};
 
 
 export const propertyService = {
@@ -204,5 +235,5 @@ export const propertyService = {
   listProperties,
   deleteProperty
 };
-  
+
 

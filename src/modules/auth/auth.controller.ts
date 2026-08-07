@@ -5,6 +5,7 @@ import sendResponse from "../../utils/sendResponse";
 import { authService } from "./auth.service";
 import { Request, Response } from "express";
 import { SignOptions } from "jsonwebtoken";
+import { authCookieOptions } from "../../utils/authCookies";
 
 const register = catchAsync(async (req, res) => {
   const registeredUserData = await authService.register(req.body);
@@ -17,26 +18,50 @@ const register = catchAsync(async (req, res) => {
   });
 });
 
+// const loginUser = catchAsync(async (req: Request, res: Response) => {
+//   const result = await authService.login(req.body);
+
+//   res.cookie("accessToken", result.accessToken, {
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === "development" ? false : true,
+//     sameSite: "strict",
+//   });
+
+//   res.cookie("refreshToken", result.refreshToken, {
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === "development" ? false : true,
+//     sameSite: "strict",
+//   });
+
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     success: true,
+//     message: "User logged in successfully!",
+//     data: {user: result.user, accessToken: result.accessToken},
+//   });
+// });
+
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.login(req.body);
 
   res.cookie("accessToken", result.accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "development" ? false : true,
-    sameSite: "strict",
+    ...authCookieOptions,
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
 
   res.cookie("refreshToken", result.refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "development" ? false : true,
-    sameSite: "strict",
+    ...authCookieOptions,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "User logged in successfully!",
-    data: {user: result.user, accessToken: result.accessToken},
+    data: {
+      user: result.user,
+      accessToken: result.accessToken,
+    },
   });
 });
 
@@ -44,15 +69,17 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies.refreshToken;
 
   if (!token) {
-    throw new AppError(401, "Refresh token is missing!");
+    throw new AppError(
+      status.UNAUTHORIZED,
+      "Refresh token is missing!",
+    );
   }
 
-  const result = await authService.refreshAccessToken(token);
+  const accessToken = await authService.refreshAccessToken(token);
 
-  res.cookie("accessToken", result, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+  res.cookie("accessToken", accessToken, {
+    ...authCookieOptions,
+    maxAge: 24 * 60 * 60 * 1000,
   });
 
   sendResponse(res, {
@@ -63,7 +90,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
       refreshed: true,
     },
   });
-});
+});;
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.getMe(req.user!.id);
@@ -78,15 +105,11 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 
 const logout = catchAsync(async (_req: Request, res: Response) => {
   res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    ...authCookieOptions
   });
 
   res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "development" ? false : true,
-    sameSite: "strict",
+    ...authCookieOptions
   });
 
   sendResponse(res, {
@@ -95,6 +118,10 @@ const logout = catchAsync(async (_req: Request, res: Response) => {
     message: "Logged out successfully",
   });
 });
+
+
+
+
 
 export const authController = {
   register,

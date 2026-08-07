@@ -10,6 +10,7 @@ import {
   updatePropertySchema,
 } from "./property.validation";
 import { propertyController } from "./property.controller";
+import { adminController } from "../admin/admin.controller";
 
 const router = Router();
 
@@ -43,7 +44,7 @@ router.patch(
   propertyController.updatePropertyAvailability,
 );
 
-router.get("/", authenticate, propertyController.getProperties);
+router.get("/",  propertyController.getProperties);
 
 router.get(
   "/me",
@@ -60,6 +61,8 @@ router.delete(
   authorize(UserRole.LANDLORD),
   propertyController.deleteProperty,
 );
+
+
 
 
 

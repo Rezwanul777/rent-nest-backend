@@ -24,4 +24,13 @@ router.patch(
   adminController.updateUserStatus,
 );
 
+router.get(
+  "/properties",
+  authenticate,
+  authorize(UserRole.ADMIN),
+  adminController.getAllProperties,
+);
+
+
+
 export const adminRoutes = router;

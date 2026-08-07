@@ -1,7 +1,3 @@
-import { CookieOptions } from "express";
-
-
-
 // export const accessCookieOptions: CookieOptions = {
 //   httpOnly: true,
 //   sameSite: "lax",
@@ -14,4 +10,15 @@ import { CookieOptions } from "express";
 //   sameSite: "lax",
 //   secure: env.nodeEnv !== "development",
 //   maxAge: env.jwtRefreshExpiresMs,
-// };
+//
+
+import type { CookieOptions } from "express";
+
+const isProduction = process.env.NODE_ENV === "production";
+
+export const authCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  path: "/",
+};

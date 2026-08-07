@@ -133,12 +133,11 @@ const getProperties = catchAsync(async (req, res) => {
     data: { listings, meta },
   });
 });
-
 const deleteProperty = catchAsync(async (req, res) => {
-  
+  const landlordId = req.user!.id;
   const propertyId = req.params.propertyId as string;
 
-  await propertyService.deleteProperty(propertyId);
+  await propertyService.deleteProperty(propertyId, landlordId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
