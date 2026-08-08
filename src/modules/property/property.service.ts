@@ -46,41 +46,50 @@ const getPropertyById = async (propertyId: string) => {
   return property;
 };
 
-const getMyPropertyById = async (propertyId: string, landlordId: string) =>
-  await prisma.property.findFirst({
-  where: {
-    id: propertyId,
-    isAvailable: true,
-  },
-  include: {
-    category: {
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-      },
+const getMyPropertyById = async (propertyId: string, landlordId: string) => {
+  const property = await prisma.property.findFirst({
+    where: {
+      id: propertyId,
+      landlordId,
     },
-    landlord: {
-      select: {
-        id: true,
-        name: true,
-      },
-    },
-    reviews: {
-      include: {
-        tenant: {
-          select: {
-            id: true,
-            name: true,
-          },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
         },
       },
-      orderBy: {
-        createdAt: "desc",
+      landlord: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      reviews: {
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
       },
     },
-  },
-});
+  })
+
+  if (!property) {
+    throw new AppError(httpStatus.NOT_FOUND, "Property not found")
+  }
+
+  return property
+}
+
+
 
 const updateProperty = async (
   propertyId: string,

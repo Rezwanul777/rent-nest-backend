@@ -1000,6 +1000,10 @@ const listRentalRequests = async (query, scope) => {
 				title: true,
 				location: true,
 				rent: true
+			} },
+			rentalAgreement: { select: {
+				id: true,
+				status: true
 			} }
 		},
 		orderBy: { [sortBy]: sortOrder },
