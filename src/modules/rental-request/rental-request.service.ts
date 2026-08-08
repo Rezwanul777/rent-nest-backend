@@ -76,33 +76,45 @@ const listRentalRequests = async (
   const { sortBy, sortOrder } = buildRentalRequestSorting(query);
   const andCondition = buildRentalRequestFilters(query, scope);
 
+
   const requests = await prisma.rentalRequest.findMany({
-    where: {
-      AND: andCondition,
-    },
-    include: {
-      tenant: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-      property: {
-        select: {
-          id: true,
-          title: true,
-          location: true,
-          rent: true,
-        },
+  where: {
+    AND: andCondition,
+  },
+
+  include: {
+    tenant: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
       },
     },
-    orderBy: {
-      [sortBy]: sortOrder,
+
+    property: {
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        rent: true,
+      },
     },
-    take: pagination.limit,
-    skip: pagination.skip,
-  });
+
+    rentalAgreement: {
+      select: {
+        id: true,
+        status: true,
+      },
+    },
+  },
+
+  orderBy: {
+    [sortBy]: sortOrder,
+  },
+
+  take: pagination.limit,
+  skip: pagination.skip,
+})
 
   const totalRequests = await prisma.rentalRequest.count({
     where: {

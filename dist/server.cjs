@@ -26,14 +26,14 @@ let express = require("express");
 express = __toESM(express, 1);
 let cors = require("cors");
 cors = __toESM(cors, 1);
-let http_status = require("http-status");
-http_status = __toESM(http_status, 1);
-let zod = require("zod");
-zod = __toESM(zod, 1);
 let dotenv = require("dotenv");
 dotenv = __toESM(dotenv, 1);
 let path = require("path");
 path = __toESM(path, 1);
+let http_status = require("http-status");
+http_status = __toESM(http_status, 1);
+let zod = require("zod");
+zod = __toESM(zod, 1);
 require("dotenv/config");
 let _prisma_adapter_pg = require("@prisma/adapter-pg");
 let node_path = require("node:path");
@@ -49,20 +49,6 @@ let _prisma_client_runtime_index_browser = require("@prisma/client/runtime/index
 _prisma_client_runtime_index_browser = __toESM(_prisma_client_runtime_index_browser, 1);
 let stripe = require("stripe");
 stripe = __toESM(stripe, 1);
-//#region src/utils/sendResponse.ts
-const sendResponse = (res, response) => {
-	const { statusCode, ...responseBody } = response;
-	return res.status(statusCode).json(responseBody);
-};
-//#endregion
-//#region src/middlewares/notFound.ts
-const notFound = (req, res) => sendResponse(res, {
-	statusCode: http_status.default.NOT_FOUND,
-	success: false,
-	message: "Route not found",
-	errorDetails: [{ message: `${req.method} ${req.originalUrl} does not exist` }]
-});
-//#endregion
 //#region src/config/index.ts
 dotenv.default.config({ path: path.default.join(process.cwd(), ".env") });
 var config_default = {
@@ -80,6 +66,20 @@ var config_default = {
 	stripe_success_url: process.env.STRIPE_SUCCESS_URL,
 	stripe_cancel_url: process.env.STRIPE_CANCEL_URL
 };
+//#endregion
+//#region src/utils/sendResponse.ts
+const sendResponse = (res, response) => {
+	const { statusCode, ...responseBody } = response;
+	return res.status(statusCode).json(responseBody);
+};
+//#endregion
+//#region src/middlewares/notFound.ts
+const notFound = (req, res) => sendResponse(res, {
+	statusCode: http_status.default.NOT_FOUND,
+	success: false,
+	message: "Route not found",
+	errorDetails: [{ message: `${req.method} ${req.originalUrl} does not exist` }]
+});
 //#endregion
 //#region src/utils/AppError.ts
 var AppError = class extends Error {
@@ -347,6 +347,15 @@ const authService = {
 	refreshAccessToken,
 	getMe: getMe$1
 };
+//#endregion
+//#region src/utils/authCookies.ts
+const isProduction = process.env.NODE_ENV === "production";
+const authCookieOptions = {
+	httpOnly: true,
+	secure: isProduction,
+	sameSite: isProduction ? "none" : "lax",
+	path: "/"
+};
 const authController = {
 	register: catchAsync(async (req, res) => {
 		const registeredUserData = await authService.register(req.body);
@@ -360,14 +369,12 @@ const authController = {
 	loginUser: catchAsync(async (req, res) => {
 		const result = await authService.login(req.body);
 		res.cookie("accessToken", result.accessToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "development" ? false : true,
-			sameSite: "strict"
+			...authCookieOptions,
+			maxAge: 1440 * 60 * 1e3
 		});
 		res.cookie("refreshToken", result.refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "development" ? false : true,
-			sameSite: "strict"
+			...authCookieOptions,
+			maxAge: 10080 * 60 * 1e3
 		});
 		sendResponse(res, {
 			statusCode: http_status.default.OK,
@@ -381,12 +388,11 @@ const authController = {
 	}),
 	refreshToken: catchAsync(async (req, res) => {
 		const token = req.cookies.refreshToken;
-		if (!token) throw new AppError(401, "Refresh token is missing!");
-		const result = await authService.refreshAccessToken(token);
-		res.cookie("accessToken", result, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict"
+		if (!token) throw new AppError(http_status.default.UNAUTHORIZED, "Refresh token is missing!");
+		const accessToken = await authService.refreshAccessToken(token);
+		res.cookie("accessToken", accessToken, {
+			...authCookieOptions,
+			maxAge: 1440 * 60 * 1e3
 		});
 		sendResponse(res, {
 			statusCode: http_status.default.OK,
@@ -405,16 +411,8 @@ const authController = {
 		});
 	}),
 	logout: catchAsync(async (_req, res) => {
-		res.clearCookie("accessToken", {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict"
-		});
-		res.clearCookie("refreshToken", {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "development" ? false : true,
-			sameSite: "strict"
-		});
+		res.clearCookie("accessToken", { ...authCookieOptions });
+		res.clearCookie("refreshToken", { ...authCookieOptions });
 		sendResponse(res, {
 			statusCode: http_status.default.OK,
 			success: true,
@@ -449,6 +447,210 @@ const authorize = (...roles) => (req, _res, next) => {
 	if (!req.user) throw new AppError(http_status.default.UNAUTHORIZED, "Please login to continue");
 	if (!roles.includes(req.user.role)) throw new AppError(http_status.default.FORBIDDEN, "You are not allowed to perform this action");
 	next();
+};
+//#endregion
+//#region src/utils/pagination.ts
+const getPagination = (page, limit) => {
+	const currentPage = Math.max(1, page || 1);
+	const currentLimit = Math.max(1, limit || 10);
+	return {
+		page: currentPage,
+		limit: currentLimit,
+		skip: (currentPage - 1) * currentLimit
+	};
+};
+//#endregion
+//#region src/modules/property/property.query.ts
+const SORTABLE_FIELDS$3 = [
+	"createdAt",
+	"rent",
+	"title",
+	"updatedAt"
+];
+const SORT_ORDERS$4 = ["asc", "desc"];
+const buildPropertySorting = (query) => {
+	return {
+		sortBy: query.sortBy && SORTABLE_FIELDS$3.includes(query.sortBy) ? query.sortBy : "createdAt",
+		sortOrder: query.sortOrder && SORT_ORDERS$4.includes(query.sortOrder) ? query.sortOrder : "desc"
+	};
+};
+const parseNumber = (value) => {
+	if (!value?.trim()) return;
+	const parsedValue = Number(value);
+	if (!Number.isFinite(parsedValue) || parsedValue < 0) return;
+	return parsedValue;
+};
+const parseAmenities = (amenities) => {
+	if (!amenities) return [];
+	return [...new Set((Array.isArray(amenities) ? amenities : [amenities]).flatMap((value) => value.split(",")).map((value) => value.trim()).filter(Boolean))];
+};
+const buildPropertyFilters = (query, scope) => {
+	const { categoryId, isAvailable, location, search, minRent, maxRent, amenities } = query;
+	const andConditions = [];
+	switch (scope.type) {
+		case "PUBLIC":
+			andConditions.push({ isAvailable: true });
+			break;
+		case "LANDLORD":
+			andConditions.push({ landlordId: scope.landlordId });
+			break;
+		case "ADMIN": break;
+	}
+	const normalizedCategoryId = categoryId?.trim();
+	if (normalizedCategoryId) andConditions.push({ categoryId: normalizedCategoryId });
+	if (scope.type !== "PUBLIC" && (isAvailable === "true" || isAvailable === "false")) andConditions.push({ isAvailable: isAvailable === "true" });
+	const normalizedLocation = location?.trim();
+	if (normalizedLocation) andConditions.push({ location: {
+		contains: normalizedLocation,
+		mode: "insensitive"
+	} });
+	const normalizedMinRent = parseNumber(minRent);
+	const normalizedMaxRent = parseNumber(maxRent);
+	if (normalizedMinRent !== void 0 || normalizedMaxRent !== void 0) andConditions.push({ rent: {
+		...normalizedMinRent !== void 0 ? { gte: normalizedMinRent } : {},
+		...normalizedMaxRent !== void 0 ? { lte: normalizedMaxRent } : {}
+	} });
+	const normalizedAmenities = parseAmenities(amenities);
+	if (normalizedAmenities.length > 0) andConditions.push({ amenities: { hasEvery: normalizedAmenities } });
+	const normalizedSearch = search?.trim();
+	if (normalizedSearch) andConditions.push({ OR: [
+		{ title: {
+			contains: normalizedSearch,
+			mode: "insensitive"
+		} },
+		{ description: {
+			contains: normalizedSearch,
+			mode: "insensitive"
+		} },
+		{ location: {
+			contains: normalizedSearch,
+			mode: "insensitive"
+		} },
+		{ category: { name: {
+			contains: normalizedSearch,
+			mode: "insensitive"
+		} } }
+	] });
+	return andConditions;
+};
+//#endregion
+//#region src/modules/property/property.service.ts
+const createProperty$1 = async (landlordId, payload) => {
+	if (!await prisma.category.findUnique({ where: { id: payload.categoryId } })) throw new AppError(http_status.default.BAD_REQUEST, "Category not found");
+	return prisma.property.create({ data: {
+		landlordId,
+		...payload
+	} });
+};
+const getPropertyById$1 = async (propertyId) => {
+	const property = await prisma.property.findUnique({
+		where: {
+			id: propertyId,
+			isAvailable: true
+		},
+		include: { reviews: true }
+	});
+	if (!property) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
+	return property;
+};
+const getMyPropertyById$1 = async (propertyId, landlordId) => await prisma.property.findFirst({
+	where: {
+		id: propertyId,
+		isAvailable: true
+	},
+	include: {
+		category: { select: {
+			id: true,
+			name: true,
+			slug: true
+		} },
+		landlord: { select: {
+			id: true,
+			name: true
+		} },
+		reviews: {
+			include: { tenant: { select: {
+				id: true,
+				name: true
+			} } },
+			orderBy: { createdAt: "desc" }
+		}
+	}
+});
+const updateProperty$1 = async (propertyId, landlordId, payload) => {
+	if (!await prisma.property.findFirst({ where: {
+		id: propertyId,
+		landlordId
+	} })) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
+	if (payload.categoryId) {
+		if (!await prisma.category.findUnique({ where: { id: payload.categoryId } })) throw new AppError(http_status.default.BAD_REQUEST, "Category not found");
+	}
+	return prisma.property.update({
+		where: {
+			id: propertyId,
+			landlordId
+		},
+		data: payload
+	});
+};
+const updatePropertyAvailability$1 = async (propertyId, landlordId) => {
+	const property = await prisma.property.findFirst({ where: {
+		id: propertyId,
+		landlordId
+	} });
+	if (!property) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
+	const updateAvailabilityStatus = !property.isAvailable;
+	return prisma.property.update({
+		where: {
+			id: propertyId,
+			landlordId
+		},
+		data: { isAvailable: updateAvailabilityStatus },
+		select: { isAvailable: true }
+	});
+};
+const listProperties = async (query, scope) => {
+	const dataLimit = Number(query.limit);
+	const { limit, page, skip } = getPagination(Number(query.page), dataLimit);
+	const andCondition = buildPropertyFilters(query, scope);
+	const { sortBy, sortOrder } = buildPropertySorting(query);
+	const listings = await prisma.property.findMany({
+		where: { AND: andCondition },
+		include: { category: { select: {
+			id: true,
+			name: true
+		} } },
+		omit: { categoryId: true },
+		orderBy: { [sortBy]: sortOrder },
+		take: limit,
+		skip
+	});
+	const propertyCount = await prisma.property.count({ where: { AND: andCondition } });
+	return {
+		meta: {
+			page,
+			limit,
+			total: propertyCount,
+			totalPages: Math.ceil(propertyCount / limit)
+		},
+		listings
+	};
+};
+const deleteProperty$1 = async (propertyId, landlordId) => {
+	if (!await prisma.property.findFirst({ where: {
+		id: propertyId,
+		landlordId
+	} })) throw new AppError(http_status.default.NOT_FOUND, "Property not found or access denied");
+	await prisma.property.delete({ where: { id: propertyId } });
+};
+const propertyService = {
+	createProperty: createProperty$1,
+	getMyPropertyById: getMyPropertyById$1,
+	getPropertyById: getPropertyById$1,
+	updateProperty: updateProperty$1,
+	updatePropertyAvailability: updatePropertyAvailability$1,
+	listProperties,
+	deleteProperty: deleteProperty$1
 };
 //#endregion
 //#region src/utils/validateEnum.ts
@@ -518,6 +720,18 @@ const adminController = {
 			}
 		});
 	}),
+	getAllProperties: catchAsync(async (req, res) => {
+		const { meta, listings } = await propertyService.listProperties(req.query, { type: "ADMIN" });
+		sendResponse(res, {
+			statusCode: http_status.status.OK,
+			success: true,
+			message: "Properties retrieved successfully",
+			data: {
+				listings,
+				meta
+			}
+		});
+	}),
 	updateUserStatus: catchAsync(async (req, res) => {
 		const user = await adminService.updateUserStatus(req.params.userId, req.body);
 		sendResponse(res, {
@@ -536,6 +750,7 @@ const updateUserStatusSchema = zod.default.object({ isActive: zod.default.boolea
 const router$6 = (0, express.Router)();
 router$6.get("/users", authenticate, authorize(UserRole.ADMIN), adminController.getAllUsers);
 router$6.patch("/users/:userId", authenticate, authorize(UserRole.ADMIN), validateRequest(updateUserStatusSchema), adminController.updateUserStatus);
+router$6.get("/properties", authenticate, authorize(UserRole.ADMIN), adminController.getAllProperties);
 const adminRoutes = router$6;
 //#endregion
 //#region src/modules/category/category.validate.ts
@@ -645,172 +860,6 @@ const updatePropertySchema = zod.default.object({
 	categoryId: zod.default.uuid("Invalid category id").optional()
 }).refine((data) => Object.keys(data).length > 0, { message: "At least one field is required" });
 zod.default.object({ status: zod.default.enum([RentalRequestStatus.APPROVED, RentalRequestStatus.REJECTED], { error: (issue) => issue.input == null ? "Status is required" : "Invalid status! Status can either be APPROVED or REJECTED" }) });
-//#endregion
-//#region src/utils/pagination.ts
-const getPagination = (page, limit) => {
-	const currentPage = Math.max(1, page || 1);
-	const currentLimit = Math.max(1, limit || 10);
-	return {
-		page: currentPage,
-		limit: currentLimit,
-		skip: (currentPage - 1) * currentLimit
-	};
-};
-//#endregion
-//#region src/modules/property/property.query.ts
-const SORTABLE_FIELDS$3 = [
-	"createdAt",
-	"rent",
-	"title",
-	"updatedAt"
-];
-const SORT_ORDERS$4 = ["asc", "desc"];
-const buildPropertySorting = (query) => {
-	return {
-		sortBy: query.sortBy && SORTABLE_FIELDS$3.includes(query.sortBy) ? query.sortBy : "createdAt",
-		sortOrder: query.sortOrder && SORT_ORDERS$4.includes(query.sortOrder) ? query.sortOrder : "desc"
-	};
-};
-const buildPropertyFilters = (query, scope) => {
-	const { categoryId, isAvailable, location, search, minRent, maxRent } = query;
-	const andCondition = [];
-	switch (scope.type) {
-		case "PUBLIC":
-			andCondition.push({ isAvailable: true });
-			break;
-		case "LANDLORD":
-			andCondition.push({ landlordId: scope.landlordId });
-			break;
-	}
-	if (categoryId) andCondition.push({ categoryId });
-	if (scope.type !== "PUBLIC" && typeof isAvailable !== "undefined") andCondition.push({ isAvailable: isAvailable === "true" ? true : false });
-	if (location) andCondition.push({ location: {
-		contains: location,
-		mode: "insensitive"
-	} });
-	if (minRent) andCondition.push({ rent: { gte: Number(minRent) } });
-	if (maxRent) andCondition.push({ rent: { lte: Number(maxRent) } });
-	if (search) andCondition.push({ OR: [
-		{ location: {
-			contains: search,
-			mode: "insensitive"
-		} },
-		{ title: {
-			contains: search,
-			mode: "insensitive"
-		} },
-		{ description: {
-			contains: search,
-			mode: "insensitive"
-		} },
-		{ category: { name: {
-			contains: search,
-			mode: "insensitive"
-		} } }
-	] });
-	return andCondition;
-};
-//#endregion
-//#region src/modules/property/property.service.ts
-const createProperty$1 = async (landlordId, payload) => {
-	if (!await prisma.category.findUnique({ where: { id: payload.categoryId } })) throw new AppError(http_status.default.BAD_REQUEST, "Category not found");
-	return prisma.property.create({ data: {
-		landlordId,
-		...payload
-	} });
-};
-const getPropertyById$1 = async (propertyId) => {
-	const property = await prisma.property.findUnique({
-		where: {
-			id: propertyId,
-			isAvailable: true
-		},
-		include: { reviews: true }
-	});
-	if (!property) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
-	return property;
-};
-const getMyPropertyById$1 = async (propertyId, landlordId) => {
-	const property = await prisma.property.findFirst({ where: {
-		id: propertyId,
-		landlordId
-	} });
-	if (!property) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
-	return property;
-};
-const updateProperty$1 = async (propertyId, landlordId, payload) => {
-	if (!await prisma.property.findFirst({ where: {
-		id: propertyId,
-		landlordId
-	} })) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
-	if (payload.categoryId) {
-		if (!await prisma.category.findUnique({ where: { id: payload.categoryId } })) throw new AppError(http_status.default.BAD_REQUEST, "Category not found");
-	}
-	return prisma.property.update({
-		where: {
-			id: propertyId,
-			landlordId
-		},
-		data: payload
-	});
-};
-const updatePropertyAvailability$1 = async (propertyId, landlordId) => {
-	const property = await prisma.property.findFirst({ where: {
-		id: propertyId,
-		landlordId
-	} });
-	if (!property) throw new AppError(http_status.default.NOT_FOUND, "Property not found");
-	const updateAvailabilityStatus = !property.isAvailable;
-	return prisma.property.update({
-		where: {
-			id: propertyId,
-			landlordId
-		},
-		data: { isAvailable: updateAvailabilityStatus },
-		select: { isAvailable: true }
-	});
-};
-const listProperties = async (query, scope) => {
-	const dataLimit = Number(query.limit);
-	const { limit, page, skip } = getPagination(Number(query.page), dataLimit);
-	const andCondition = buildPropertyFilters(query, scope);
-	const { sortBy, sortOrder } = buildPropertySorting(query);
-	const listings = await prisma.property.findMany({
-		where: { AND: andCondition },
-		include: { category: { select: {
-			id: true,
-			name: true
-		} } },
-		omit: { categoryId: true },
-		orderBy: { [sortBy]: sortOrder },
-		take: limit,
-		skip
-	});
-	const propertyCount = await prisma.property.count({ where: { AND: andCondition } });
-	return {
-		meta: {
-			page,
-			limit,
-			total: propertyCount,
-			totalPages: Math.ceil(propertyCount / limit)
-		},
-		listings
-	};
-};
-const deleteProperty$1 = async (propertyId) => {
-	const propertyExists = await prisma.property.findUniqueOrThrow({ where: { id: propertyId } });
-	await prisma.property.delete({ where: { id: propertyExists.id } });
-	return null;
-};
-const propertyService = {
-	createProperty: createProperty$1,
-	getMyPropertyById: getMyPropertyById$1,
-	getPropertyById: getPropertyById$1,
-	updateProperty: updateProperty$1,
-	updatePropertyAvailability: updatePropertyAvailability$1,
-	listProperties,
-	deleteProperty: deleteProperty$1
-};
 const propertyController = {
 	createProperty: catchAsync(async (req, res) => {
 		const landlordId = req.user?.id;
@@ -893,8 +942,9 @@ const propertyController = {
 		});
 	}),
 	deleteProperty: catchAsync(async (req, res) => {
+		const landlordId = req.user.id;
 		const propertyId = req.params.propertyId;
-		await propertyService.deleteProperty(propertyId);
+		await propertyService.deleteProperty(propertyId, landlordId);
 		sendResponse(res, {
 			statusCode: http_status.default.OK,
 			success: true,
@@ -909,7 +959,7 @@ router$4.post("/", authenticate, authorize(UserRole.LANDLORD), validateRequest(c
 router$4.patch("/:propertyId", authenticate, authorize(UserRole.LANDLORD), validateRequest(updatePropertySchema), propertyController.updateProperty);
 router$4.get("/me/:propertyId", authenticate, authorize(UserRole.LANDLORD), propertyController.getMyPropertyById);
 router$4.patch("/:propertyId/availability", authenticate, authorize(UserRole.LANDLORD), propertyController.updatePropertyAvailability);
-router$4.get("/", authenticate, propertyController.getProperties);
+router$4.get("/", propertyController.getProperties);
 router$4.get("/me", authenticate, authorize(UserRole.LANDLORD), propertyController.getMyProperties);
 router$4.get("/:propertyId", propertyController.getPropertyById);
 router$4.delete("/:propertyId", authenticate, authorize(UserRole.LANDLORD), propertyController.deleteProperty);
@@ -1650,7 +1700,18 @@ app.use("/api/payments/webhook", express.default.raw({ type: "application/json" 
 app.use(express.default.json());
 app.use((0, cookie_parser.default)());
 app.use((0, express.urlencoded)({ extended: true }));
-app.use((0, cors.default)());
+app.use((0, cors.default)({
+	origin: config_default.app_url,
+	credentials: true,
+	methods: [
+		"GET",
+		"POST",
+		"PATCH",
+		"DELETE",
+		"OPTIONS"
+	],
+	allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.get("/", (req, res) => {
 	res.status(200).json({ message: "Welcome to RNest backend" });
 });
