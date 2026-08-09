@@ -36,8 +36,12 @@ const getAllProperties = catchAsync(async (req, res) => {
 });
 
 const updateUserStatus = catchAsync(async (req, res) => {
+  const adminId = req.user!.id;
+  const userId = req.params.userId as string;
+
   const user = await adminService.updateUserStatus(
-    req.params.userId as string,
+    adminId,
+    userId,
     req.body,
   );
 

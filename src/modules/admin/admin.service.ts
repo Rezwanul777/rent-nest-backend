@@ -9,8 +9,19 @@ import { UpdateUserStatus } from "./admin.validation";
 
 
 const getAllUsers = async (query: GetUsersQuery) => {
-  const limit = Math.max(1, Number(query.limit) || 10);
-  const page = Math.max(1, Number(query.page) || 1);
+ const requestedLimit = Number(query.limit);
+  const requestedPage = Number(query.page);
+
+  const limit =
+    Number.isInteger(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 100)
+      : 10;
+
+  const page =
+    Number.isInteger(requestedPage) && requestedPage > 0
+      ? requestedPage
+      : 1;
+
   const skip = (page - 1) * limit;
 
   const SORTABLE_FIELDS = ["createdAt", "updatedAt"] as const;
@@ -29,7 +40,25 @@ const getAllUsers = async (query: GetUsersQuery) => {
 
   const andCondition: UserWhereInput[] = [];
 
-  const { isActive, role } = query;
+  const { isActive, role, search } = query;
+  if (search?.trim()) {
+  andCondition.push({
+    OR: [
+      {
+        name: {
+          contains: search.trim(),
+          mode: "insensitive",
+        },
+      },
+      {
+        email: {
+          contains: search.trim(),
+          mode: "insensitive",
+        },
+      },
+    ],
+  });
+}
 
   if (typeof isActive !== "undefined") {
     if (!["true", "false"].includes(isActive)) {
@@ -78,7 +107,13 @@ const getAllUsers = async (query: GetUsersQuery) => {
   };
 };
 
-const updateUserStatus = async (userId: string, payload: UpdateUserStatus) => {
+const updateUserStatus = async ( adminId: string,userId: string, payload: UpdateUserStatus) => {
+  if (adminId === userId && payload.isActive === false) {
+  throw new AppError(
+    status.BAD_REQUEST,
+    "You cannot ban your own admin account",
+  );
+}
   const user = await prisma.user.findUnique({
     where: {
       id: userId,

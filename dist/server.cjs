@@ -1231,6 +1231,12 @@ const listRentalAgreements = async (query, scope) => {
 				id: true,
 				title: true
 			} },
+			review: { select: {
+				id: true,
+				rating: true,
+				comment: true,
+				createdAt: true
+			} },
 			status: true,
 			activatedAt: true,
 			leaseStartDate: true,
