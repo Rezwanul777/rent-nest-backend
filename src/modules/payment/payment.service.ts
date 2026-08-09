@@ -158,6 +158,123 @@ const endpointSecret = config.stripe_webhook_secret;
   });
 };
 
+// const createCheckoutSession = async (
+//   tenantId: string,
+//   userEmail: string,
+//   rentalAgreementId: string,
+// ) => {
+//   const rentalAgreement = await prisma.rentalAgreement.findFirst({
+//     where: {
+//       id: rentalAgreementId,
+//       tenantId,
+//     },
+//     include: {
+//       property: {
+//         select: {
+//           title: true,
+//         },
+//       },
+//     },
+//   });
+
+//   if (!rentalAgreement) {
+//     throw new AppError(status.NOT_FOUND, "Rental agreement not found");
+//   }
+
+//   if (rentalAgreement.status !== RentalAgreementStatus.PENDING_PAYMENT) {
+//     throw new AppError(
+//       status.BAD_REQUEST,
+//       "Payment is not available for this agreement",
+//     );
+//   }
+
+//   const payment = await prisma.$transaction(async (tx) => {
+//     const existingPayment = await tx.payment.findFirst({
+//       where: {
+//         rentalAgreementId,
+//         status: {
+//           in: [PaymentStatus.PENDING, PaymentStatus.PROCESSING],
+//         },
+//       },
+//     });
+
+//     if (existingPayment) {
+//       throw new AppError(
+//         status.CONFLICT,
+//         "A payment is already pending for this agreement",
+//       );
+//     }
+//     return tx.payment.create({
+//       data: {
+//         rentalAgreementId,
+//         amount: rentalAgreement.monthlyRent,
+//         currency: "bdt",
+//       },
+//     });
+//   });
+
+//   // const checkoutSession = await stripeService.createCheckoutSession({
+//   //   paymentId: payment.id,
+//   //   rentalAgreementId,
+//   //   rentalRequestId: rentalAgreement.rentalRequestId,
+//   //   tenantId,
+//   //   email: userEmail,
+//   //   currency: payment.currency,
+//   //   amount: Math.round(Number(payment.amount)),
+//   //   propertyTitle: rentalAgreement.property.title,
+//   // });
+
+// const checkoutSession =
+//   await stripe.checkout.sessions.create({
+//     mode: "payment",
+//     payment_method_types: ["card"],
+//     customer_email: userEmail,
+
+//     line_items: [
+//       {
+//         quantity: 1,
+//         price_data: {
+//           currency: payment.currency.toLowerCase(),
+
+//           unit_amount: Math.round(
+//             Number(payment.amount) * 100,
+//           ),
+
+//           product_data: {
+//             name: rentalAgreement.property.title,
+//           },
+//         },
+//       },
+//     ],
+
+//     success_url:
+//       `${config.app_url}/payment/success` +
+//       "?session_id={CHECKOUT_SESSION_ID}",
+
+//     cancel_url: `${config.app_url}/payment/cancel`,
+
+//     metadata: {
+//       paymentId: payment.id,
+//       rentalAgreementId,
+//       rentalRequestId:
+//         rentalAgreement.rentalRequestId,
+//       tenantId,
+//     },
+//   });
+//   await prisma.payment.update({
+//     where: {
+//       id: payment.id,
+//     },
+//     data: {
+//       stripeSessionId: checkoutSession.id,
+//       checkoutUrl: checkoutSession.url,
+//     },
+//   });
+
+//   return {
+//     checkoutUrl: checkoutSession.url,
+//   };
+// };
 const createCheckoutSession = async (
   tenantId: string,
   userEmail: string,
@@ -178,32 +295,55 @@ const createCheckoutSession = async (
   });
 
   if (!rentalAgreement) {
-    throw new AppError(status.NOT_FOUND, "Rental agreement not found");
+    throw new AppError(
+      status.NOT_FOUND,
+      "Rental agreement not found",
+    );
   }
 
-  if (rentalAgreement.status !== RentalAgreementStatus.PENDING_PAYMENT) {
+  if (
+    rentalAgreement.status !==
+    RentalAgreementStatus.PENDING_PAYMENT
+  ) {
     throw new AppError(
       status.BAD_REQUEST,
       "Payment is not available for this agreement",
     );
   }
 
+  if (!config.app_url) {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Frontend application URL is not configured",
+    );
+  }
+
+  /*
+   * Find an unfinished payment first.
+   *
+   * If one already exists, reuse it instead of throwing
+   * "A payment is already pending".
+   */
   const payment = await prisma.$transaction(async (tx) => {
     const existingPayment = await tx.payment.findFirst({
       where: {
         rentalAgreementId,
         status: {
-          in: [PaymentStatus.PENDING, PaymentStatus.PROCESSING],
+          in: [
+            PaymentStatus.PENDING,
+            PaymentStatus.PROCESSING,
+          ],
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
     if (existingPayment) {
-      throw new AppError(
-        status.CONFLICT,
-        "A payment is already pending for this agreement",
-      );
+      return existingPayment;
     }
+
     return tx.payment.create({
       data: {
         rentalAgreementId,
@@ -213,54 +353,96 @@ const createCheckoutSession = async (
     });
   });
 
-  // const checkoutSession = await stripeService.createCheckoutSession({
-  //   paymentId: payment.id,
-  //   rentalAgreementId,
-  //   rentalRequestId: rentalAgreement.rentalRequestId,
-  //   tenantId,
-  //   email: userEmail,
-  //   currency: payment.currency,
-  //   amount: Math.round(Number(payment.amount)),
-  //   propertyTitle: rentalAgreement.property.title,
-  // });
-  
-const checkoutSession =
-  await stripe.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    customer_email: userEmail,
+  /*
+   * If this payment already has a Stripe session:
+   *
+   * OPEN     -> reuse its checkout URL
+   * COMPLETE -> payment is waiting for webhook confirmation
+   * EXPIRED  -> continue and create a new Stripe session
+   */
+  if (payment.stripeSessionId) {
+    const existingSession =
+      await stripe.checkout.sessions.retrieve(
+        payment.stripeSessionId,
+      );
 
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: payment.currency.toLowerCase(),
+    if (
+      existingSession.status === "open" &&
+      existingSession.url
+    ) {
+      return {
+        checkoutUrl: existingSession.url,
+      };
+    }
 
-          unit_amount: Math.round(
-            Number(payment.amount) * 100,
-          ),
+    if (existingSession.status === "complete") {
+      throw new AppError(
+        status.CONFLICT,
+        "Payment was submitted and is being confirmed",
+      );
+    }
+  }
 
-          product_data: {
-            name: rentalAgreement.property.title,
+  /*
+   * There is no usable Stripe session, so create a new one.
+   * This also handles an expired checkout session.
+   */
+  const checkoutSession =
+    await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      customer_email: userEmail,
+
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: payment.currency.toLowerCase(),
+
+            unit_amount: Math.round(
+              Number(payment.amount) * 100,
+            ),
+
+            product_data: {
+              name: rentalAgreement.property.title,
+              description: "RentNest rental payment",
+            },
           },
         },
+      ],
+
+      success_url:
+        `${config.app_url}/payment/success` +
+        "?session_id={CHECKOUT_SESSION_ID}",
+
+      cancel_url: `${config.app_url}/payment/cancel`,
+
+      metadata: {
+        paymentId: payment.id,
+        rentalAgreementId,
+        rentalRequestId:
+          rentalAgreement.rentalRequestId,
+        tenantId,
       },
-    ],
 
-    success_url:
-      `${config.app_url}/payment/success` +
-      "?session_id={CHECKOUT_SESSION_ID}",
+      payment_intent_data: {
+        metadata: {
+          paymentId: payment.id,
+          rentalAgreementId,
+          rentalRequestId:
+            rentalAgreement.rentalRequestId,
+          tenantId,
+        },
+      },
+    });
 
-    cancel_url: `${config.app_url}/payment/cancel`,
+  if (!checkoutSession.url) {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Stripe did not return a checkout URL",
+    );
+  }
 
-    metadata: {
-      paymentId: payment.id,
-      rentalAgreementId,
-      rentalRequestId:
-        rentalAgreement.rentalRequestId,
-      tenantId,
-    },
-  });
   await prisma.payment.update({
     where: {
       id: payment.id,
@@ -268,6 +450,7 @@ const checkoutSession =
     data: {
       stripeSessionId: checkoutSession.id,
       checkoutUrl: checkoutSession.url,
+      status: PaymentStatus.PENDING,
     },
   });
 
@@ -275,7 +458,6 @@ const checkoutSession =
     checkoutUrl: checkoutSession.url,
   };
 };
-
 const handleCheckoutCompleted = async (
   tx: Prisma.TransactionClient,
   session: Stripe.Checkout.Session,
