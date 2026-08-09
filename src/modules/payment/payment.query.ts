@@ -40,7 +40,65 @@ export type Scope =
       type: "ADMIN";
     };
 
-export const buildPaymentFilter = (query: GetPaymentsQuery, scope: Scope) => {
+// export const buildPaymentFilter = (query: GetPaymentsQuery, scope: Scope) => {
+//   const andCondition: PaymentWhereInput[] = [];
+
+//   switch (scope.type) {
+//     case "TENANT":
+//       andCondition.push({
+//         rentalAgreement: {
+//           tenantId: scope.tenantId,
+//         },
+//       });
+//       break;
+
+//     case "LANDLORD":
+//       andCondition.push({
+//         rentalAgreement: {
+//           property: {
+//             landlordId: scope.landlordId,
+//           },
+//         },
+//       });
+//       break;
+//   }
+
+//   if (query.status) {
+//     if (!isValidEnumValue(PaymentStatus, query.status)) {
+//       throw new AppError(status.BAD_REQUEST, "Invalid status", [
+//         {
+//           field: "status",
+//           message: `Please choose status from: ${Object.keys(PaymentStatus)}`,
+//         },
+//       ]);
+//     }
+//     andCondition.push({
+//       status: query.status,
+//     });
+//   }
+
+//   if (query.provider) {
+//     if (!isValidEnumValue(PaymentProvider, query.provider)) {
+//       throw new AppError(status.BAD_REQUEST, "Invalid provider", [
+//         {
+//           field: "status",
+//           message: `Please choose provider from: ${Object.keys(PaymentProvider)}`,
+//         },
+//       ]);
+//     }
+//     andCondition.push({
+//       provider: query.provider,
+//     });
+//   }
+
+//   return andCondition;
+// };
+
+
+export const buildPaymentFilter = (
+  query: GetPaymentsQuery,
+  scope: Scope,
+) => {
   const andCondition: PaymentWhereInput[] = [];
 
   switch (scope.type) {
@@ -63,15 +121,71 @@ export const buildPaymentFilter = (query: GetPaymentsQuery, scope: Scope) => {
       break;
   }
 
+  const search = query.search?.trim();
+
+  if (search) {
+    andCondition.push({
+      OR: [
+        {
+          rentalAgreement: {
+            tenant: {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          rentalAgreement: {
+            tenant: {
+              email: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          rentalAgreement: {
+            property: {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          rentalAgreement: {
+            property: {
+              location: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+      ],
+    });
+  }
+
   if (query.status) {
     if (!isValidEnumValue(PaymentStatus, query.status)) {
-      throw new AppError(status.BAD_REQUEST, "Invalid status", [
-        {
-          field: "status",
-          message: `Please choose status from: ${Object.keys(PaymentStatus)}`,
-        },
-      ]);
+      throw new AppError(
+        status.BAD_REQUEST,
+        "Invalid status",
+        [
+          {
+            field: "status",
+            message: `Please choose status from: ${Object.keys(
+              PaymentStatus,
+            )}`,
+          },
+        ],
+      );
     }
+
     andCondition.push({
       status: query.status,
     });
@@ -79,13 +193,20 @@ export const buildPaymentFilter = (query: GetPaymentsQuery, scope: Scope) => {
 
   if (query.provider) {
     if (!isValidEnumValue(PaymentProvider, query.provider)) {
-      throw new AppError(status.BAD_REQUEST, "Invalid provider", [
-        {
-          field: "status",
-          message: `Please choose provider from: ${Object.keys(PaymentProvider)}`,
-        },
-      ]);
+      throw new AppError(
+        status.BAD_REQUEST,
+        "Invalid provider",
+        [
+          {
+            field: "provider",
+            message: `Please choose provider from: ${Object.keys(
+              PaymentProvider,
+            )}`,
+          },
+        ],
+      );
     }
+
     andCondition.push({
       provider: query.provider,
     });

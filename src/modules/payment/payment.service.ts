@@ -23,6 +23,34 @@ import { stripe } from "../../lib/stripe/stripe";
 
 
 
+const paymentRelations = {
+  rentalAgreement: {
+    select: {
+      id: true,
+      status: true,
+
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+
+      property: {
+        select: {
+          id: true,
+          title: true,
+          location: true,
+          rent: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.PaymentInclude;
+
+
+
 const listPayments = async (query: GetPaymentsQuery, scope: Scope) => {
   const dataLimit = Number(query.limit);
   const currentPage = Number(query.page);
@@ -33,18 +61,23 @@ const listPayments = async (query: GetPaymentsQuery, scope: Scope) => {
   const { sortBy, sortOrder } = buildPaymentSorting(query);
 
   const payments = await prisma.payment.findMany({
-    where: {
-      AND: andCondition,
-    },
-    omit: {
-      checkoutUrl: true,
-    },
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
-    take: limit,
-    skip,
-  });
+  where: {
+    AND: andCondition,
+  },
+
+  include: paymentRelations,
+
+  omit: {
+    checkoutUrl: true,
+  },
+
+  orderBy: {
+    [sortBy]: sortOrder,
+  },
+
+  take: limit,
+  skip,
+});
 
   const totalPayments = await prisma.payment.count({
     where: {
@@ -86,16 +119,18 @@ const getPaymentById = async (paymentId: string, scope: Scope) => {
       break;
   }
 
-  const payment = await prisma.payment.findFirst({
-    where: {
-      id: paymentId,
-      AND: andCondition,
-    },
-    omit: {
-      checkoutUrl: true,
-    },
-  });
+ const payment = await prisma.payment.findFirst({
+  where: {
+    id: paymentId,
+    AND: andCondition,
+  },
 
+  include: paymentRelations,
+
+  omit: {
+    checkoutUrl: true,
+  },
+});
   if (!payment) {
     throw new AppError(status.NOT_FOUND, "Payment not found");
   }

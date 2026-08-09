@@ -7,6 +7,7 @@ export interface CreateCheckoutSessionResponse {
 export type GetPaymentsQuery = {
   page?: string;
   limit?: string;
+  search?: string;
   sortBy?: "createdAt" | "paidAt";
   sortOrder?: "asc" | "desc";
   status?: PaymentStatus;

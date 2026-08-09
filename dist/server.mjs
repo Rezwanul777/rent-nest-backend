@@ -562,7 +562,7 @@ const updateProperty$1 = async (propertyId, landlordId, payload) => {
 		data: payload
 	});
 };
-const updatePropertyAvailability$1 = async (propertyId, landlordId) => {
+const updatePropertyAvailability$2 = async (propertyId, landlordId) => {
 	const property = await prisma.property.findFirst({ where: {
 		id: propertyId,
 		landlordId
@@ -612,14 +612,29 @@ const deleteProperty$1 = async (propertyId, landlordId) => {
 	} })) throw new AppError(httpStatus.NOT_FOUND, "Property not found or access denied");
 	await prisma.property.delete({ where: { id: propertyId } });
 };
+const setPropertyAvailabilityByAdmin = async (propertyId, isAvailable) => {
+	if (!await prisma.property.findUnique({
+		where: { id: propertyId },
+		select: { id: true }
+	})) throw new AppError(httpStatus.NOT_FOUND, "Property not found");
+	return prisma.property.update({
+		where: { id: propertyId },
+		data: { isAvailable },
+		select: {
+			id: true,
+			isAvailable: true
+		}
+	});
+};
 const propertyService = {
 	createProperty: createProperty$1,
 	getMyPropertyById: getMyPropertyById$1,
 	getPropertyById: getPropertyById$1,
 	updateProperty: updateProperty$1,
-	updatePropertyAvailability: updatePropertyAvailability$1,
+	updatePropertyAvailability: updatePropertyAvailability$2,
 	listProperties,
-	deleteProperty: deleteProperty$1
+	deleteProperty: deleteProperty$1,
+	setPropertyAvailabilityByAdmin
 };
 //#endregion
 //#region src/utils/validateEnum.ts
@@ -721,11 +736,21 @@ const adminController = {
 			message: `User ${user.isActive ? "unbanned" : "banned"} successfully`,
 			data: user
 		});
+	}),
+	updatePropertyAvailability: catchAsync(async (req, res) => {
+		const property = await propertyService.setPropertyAvailabilityByAdmin(req.params.propertyId, req.body.isAvailable);
+		sendResponse(res, {
+			statusCode: status.OK,
+			success: true,
+			message: `Property ${property.isAvailable ? "published" : "hidden"} successfully`,
+			data: property
+		});
 	})
 };
 //#endregion
 //#region src/modules/admin/admin.validation.ts
 const updateUserStatusSchema = z.object({ isActive: z.boolean({ error: (issue) => issue.input == null ? "Active status is required" : "Status can only be true or false" }) });
+const adminPropertyAvailabilitySchema = z.object({ isAvailable: z.boolean({ error: (issue) => issue.input == null ? "Property availability is required" : "Property availability must be true or false" }) });
 //#endregion
 //#region src/modules/admin/admin.route.ts
 const router$6 = Router();
@@ -943,6 +968,7 @@ router$4.patch("/:propertyId/availability", authenticate, authorize(UserRole.LAN
 router$4.get("/", propertyController.getProperties);
 router$4.get("/me", authenticate, authorize(UserRole.LANDLORD), propertyController.getMyProperties);
 router$4.get("/:propertyId", propertyController.getPropertyById);
+router$4.patch("/properties/:propertyId/availability", authenticate, authorize(UserRole.ADMIN), validateRequest(adminPropertyAvailabilitySchema), adminController.updatePropertyAvailability);
 router$4.delete("/:propertyId", authenticate, authorize(UserRole.LANDLORD), propertyController.deleteProperty);
 const propertyRoutes = router$4;
 //#endregion
