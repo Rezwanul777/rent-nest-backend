@@ -53,8 +53,29 @@ const updateUserStatus = catchAsync(async (req, res) => {
   });
 });
 
+const updatePropertyAvailability = catchAsync(
+  async (req, res) => {
+    const property =
+      await propertyService.setPropertyAvailabilityByAdmin(
+        req.params.propertyId as string,
+        req.body.isAvailable,
+      );
+
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: `Property ${
+        property.isAvailable ? "published" : "hidden"
+      } successfully`,
+      data: property,
+    });
+  },
+);
+
 export const adminController = {
   getAllUsers,
   getAllProperties,
   updateUserStatus,
+  updatePropertyAvailability,
 };
+

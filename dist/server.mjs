@@ -629,13 +629,22 @@ const isValidEnumValue = (enumObject, value) => {
 //#endregion
 //#region src/modules/admin/admin.service.ts
 const getAllUsers$1 = async (query) => {
-	const limit = Math.max(1, Number(query.limit) || 10);
-	const page = Math.max(1, Number(query.page) || 1);
+	const requestedLimit = Number(query.limit);
+	const requestedPage = Number(query.page);
+	const limit = Number.isInteger(requestedLimit) && requestedLimit > 0 ? Math.min(requestedLimit, 100) : 10;
+	const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 	const skip = (page - 1) * limit;
 	const sortBy = query.sortBy && ["createdAt", "updatedAt"].includes(query.sortBy) ? query.sortBy : "createdAt";
 	const sortOrder = query.sortOrder && ["asc", "desc"].includes(query.sortOrder) ? query.sortOrder : "desc";
 	const andCondition = [];
-	const { isActive, role } = query;
+	const { isActive, role, search } = query;
+	if (search?.trim()) andCondition.push({ OR: [{ name: {
+		contains: search.trim(),
+		mode: "insensitive"
+	} }, { email: {
+		contains: search.trim(),
+		mode: "insensitive"
+	} }] });
 	if (typeof isActive !== "undefined") {
 		if (!["true", "false"].includes(isActive)) throw new AppError(httpStatus.BAD_REQUEST, "isActive must be true or false");
 		andCondition.push({ isActive: isActive === "true" ? true : false });
@@ -662,7 +671,8 @@ const getAllUsers$1 = async (query) => {
 		users
 	};
 };
-const updateUserStatus$1 = async (userId, payload) => {
+const updateUserStatus$1 = async (adminId, userId, payload) => {
+	if (adminId === userId && payload.isActive === false) throw new AppError(httpStatus.BAD_REQUEST, "You cannot ban your own admin account");
 	const user = await prisma.user.findUnique({ where: { id: userId } });
 	if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 	if (user.isActive === payload.isActive) throw new AppError(httpStatus.CONFLICT, "User is already updated");
@@ -702,7 +712,9 @@ const adminController = {
 		});
 	}),
 	updateUserStatus: catchAsync(async (req, res) => {
-		const user = await adminService.updateUserStatus(req.params.userId, req.body);
+		const adminId = req.user.id;
+		const userId = req.params.userId;
+		const user = await adminService.updateUserStatus(adminId, userId, req.body);
 		sendResponse(res, {
 			statusCode: status.OK,
 			success: true,

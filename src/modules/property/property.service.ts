@@ -233,6 +233,40 @@ const deleteProperty = async (
   });
 };
 
+const setPropertyAvailabilityByAdmin = async (
+  propertyId: string,
+  isAvailable: boolean,
+) => {
+  const property = await prisma.property.findUnique({
+    where: {
+      id: propertyId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!property) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Property not found",
+    );
+  }
+
+  return prisma.property.update({
+    where: {
+      id: propertyId,
+    },
+    data: {
+      isAvailable,
+    },
+    select: {
+      id: true,
+      isAvailable: true,
+    },
+  });
+};
+
 
 export const propertyService = {
 
@@ -242,7 +276,8 @@ export const propertyService = {
   updateProperty,
   updatePropertyAvailability,
   listProperties,
-  deleteProperty
+  deleteProperty,
+  setPropertyAvailabilityByAdmin,
 };
 
 

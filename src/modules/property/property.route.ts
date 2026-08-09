@@ -11,6 +11,7 @@ import {
 } from "./property.validation";
 import { propertyController } from "./property.controller";
 import { adminController } from "../admin/admin.controller";
+import { adminPropertyAvailabilitySchema } from "../admin/admin.validation";
 
 const router = Router();
 
@@ -54,6 +55,13 @@ router.get(
 );
 
 router.get("/:propertyId", propertyController.getPropertyById);
+router.patch(
+  "/properties/:propertyId/availability",
+  authenticate,
+  authorize(UserRole.ADMIN),
+  validateRequest(adminPropertyAvailabilitySchema),
+  adminController.updatePropertyAvailability,
+);
 
 router.delete(
   "/:propertyId",
