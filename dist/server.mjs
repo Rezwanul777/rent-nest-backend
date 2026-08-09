@@ -1518,17 +1518,27 @@ const createCheckoutSession$1 = async (tenantId, userEmail, rentalAgreementId) =
 	});
 	if (!rentalAgreement) throw new AppError(httpStatus.NOT_FOUND, "Rental agreement not found");
 	if (rentalAgreement.status !== RentalAgreementStatus.PENDING_PAYMENT) throw new AppError(httpStatus.BAD_REQUEST, "Payment is not available for this agreement");
+	if (!config_default.app_url) throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Frontend application URL is not configured");
 	const payment = await prisma.$transaction(async (tx) => {
-		if (await tx.payment.findFirst({ where: {
-			rentalAgreementId,
-			status: { in: [PaymentStatus.PENDING, PaymentStatus.PROCESSING] }
-		} })) throw new AppError(httpStatus.CONFLICT, "A payment is already pending for this agreement");
+		const existingPayment = await tx.payment.findFirst({
+			where: {
+				rentalAgreementId,
+				status: { in: [PaymentStatus.PENDING, PaymentStatus.PROCESSING] }
+			},
+			orderBy: { createdAt: "desc" }
+		});
+		if (existingPayment) return existingPayment;
 		return tx.payment.create({ data: {
 			rentalAgreementId,
 			amount: rentalAgreement.monthlyRent,
 			currency: "bdt"
 		} });
 	});
+	if (payment.stripeSessionId) {
+		const existingSession = await stripe.checkout.sessions.retrieve(payment.stripeSessionId);
+		if (existingSession.status === "open" && existingSession.url) return { checkoutUrl: existingSession.url };
+		if (existingSession.status === "complete") throw new AppError(httpStatus.CONFLICT, "Payment was submitted and is being confirmed");
+	}
 	const checkoutSession = await stripe.checkout.sessions.create({
 		mode: "payment",
 		payment_method_types: ["card"],
@@ -1538,7 +1548,10 @@ const createCheckoutSession$1 = async (tenantId, userEmail, rentalAgreementId) =
 			price_data: {
 				currency: payment.currency.toLowerCase(),
 				unit_amount: Math.round(Number(payment.amount) * 100),
-				product_data: { name: rentalAgreement.property.title }
+				product_data: {
+					name: rentalAgreement.property.title,
+					description: "RentNest rental payment"
+				}
 			}
 		}],
 		success_url: `${config_default.app_url}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -1548,13 +1561,21 @@ const createCheckoutSession$1 = async (tenantId, userEmail, rentalAgreementId) =
 			rentalAgreementId,
 			rentalRequestId: rentalAgreement.rentalRequestId,
 			tenantId
-		}
+		},
+		payment_intent_data: { metadata: {
+			paymentId: payment.id,
+			rentalAgreementId,
+			rentalRequestId: rentalAgreement.rentalRequestId,
+			tenantId
+		} }
 	});
+	if (!checkoutSession.url) throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Stripe did not return a checkout URL");
 	await prisma.payment.update({
 		where: { id: payment.id },
 		data: {
 			stripeSessionId: checkoutSession.id,
-			checkoutUrl: checkoutSession.url
+			checkoutUrl: checkoutSession.url,
+			status: PaymentStatus.PENDING
 		}
 	});
 	return { checkoutUrl: checkoutSession.url };

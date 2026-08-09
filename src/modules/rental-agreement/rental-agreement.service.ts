@@ -28,26 +28,34 @@ const listRentalAgreements = async (
       AND: andCondition,
     },
     select: {
+  id: true,
+  tenant: {
+    select: {
       id: true,
-      tenant: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      property: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      status: true,
-      activatedAt: true,
-      leaseStartDate: true,
-      leaseEndDate: true,
-      createdAt: true,
-      updatedAt: true,
+      name: true,
     },
+  },
+  property: {
+    select: {
+      id: true,
+      title: true,
+    },
+  },
+  review: {
+    select: {
+      id: true,
+      rating: true,
+      comment: true,
+      createdAt: true,
+    },
+  },
+  status: true,
+  activatedAt: true,
+  leaseStartDate: true,
+  leaseEndDate: true,
+  createdAt: true,
+  updatedAt: true,
+},
     orderBy: {
       [sortBy]: sortOrder,
     },
