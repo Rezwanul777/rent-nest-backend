@@ -28,7 +28,6 @@ function getRentalAgreementScope(user: AuthenticatedUser): Scope {
   }
 }
 
-
 const getRentalAgreements = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
   if (!user) {
@@ -44,30 +43,33 @@ const getRentalAgreements = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: `Rental agreements retreived successfully`,
-    
+
     data: { meta, agreements },
   });
 });
 
-const updateRentalAgreementStatus = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user;
-  if (!user) {
-    throw new Error("Authentication required");
-  }
+const updateRentalAgreementStatus = catchAsync(
+  async (req: Request, res: Response) => {
+    const user = req.user;
+    if (!user) {
+      throw new Error("Authentication required");
+    }
 
-  const updatedData = await rentalAgreementService.updateRentalAgreementStatus(
-    user.id as string,
-    req.params.agreementId as string,
-    req.body,
-  );
+    const updatedData =
+      await rentalAgreementService.updateRentalAgreementStatus(
+        user.id as string,
+        req.params.agreementId as string,
+        req.body,
+      );
 
-  sendResponse(res, {
-    statusCode:httpStatus.OK,
-    success: true,
-    message: `Rental agreement status updated to ${updatedData.status} successfully`,
-  });
-});
-
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: `Rental agreement status updated to ${updatedData.status} successfully`,
+      data: updatedData,
+    });
+  },
+);
 
 export const rentalAgreementcontroller = {
   getRentalAgreements,

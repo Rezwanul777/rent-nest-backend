@@ -1462,6 +1462,25 @@ const buildPaymentFilter = (query, scope) => {
 			andCondition.push({ rentalAgreement: { property: { landlordId: scope.landlordId } } });
 			break;
 	}
+	const search = query.search?.trim();
+	if (search) andCondition.push({ OR: [
+		{ rentalAgreement: { tenant: { name: {
+			contains: search,
+			mode: "insensitive"
+		} } } },
+		{ rentalAgreement: { tenant: { email: {
+			contains: search,
+			mode: "insensitive"
+		} } } },
+		{ rentalAgreement: { property: { title: {
+			contains: search,
+			mode: "insensitive"
+		} } } },
+		{ rentalAgreement: { property: { location: {
+			contains: search,
+			mode: "insensitive"
+		} } } }
+	] });
 	if (query.status) {
 		if (!isValidEnumValue(PaymentStatus, query.status)) throw new AppError(httpStatus.BAD_REQUEST, "Invalid status", [{
 			field: "status",
@@ -1471,7 +1490,7 @@ const buildPaymentFilter = (query, scope) => {
 	}
 	if (query.provider) {
 		if (!isValidEnumValue(PaymentProvider, query.provider)) throw new AppError(httpStatus.BAD_REQUEST, "Invalid provider", [{
-			field: "status",
+			field: "provider",
 			message: `Please choose provider from: ${Object.keys(PaymentProvider)}`
 		}]);
 		andCondition.push({ provider: query.provider });
@@ -1483,6 +1502,21 @@ const buildPaymentFilter = (query, scope) => {
 const stripe = new Stripe(config_default.stripe_secret_key);
 //#endregion
 //#region src/modules/payment/payment.service.ts
+const paymentRelations = { rentalAgreement: { select: {
+	id: true,
+	status: true,
+	tenant: { select: {
+		id: true,
+		name: true,
+		email: true
+	} },
+	property: { select: {
+		id: true,
+		title: true,
+		location: true,
+		rent: true
+	} }
+} } };
 const listPayments = async (query, scope) => {
 	const dataLimit = Number(query.limit);
 	const { limit, page, skip } = getPagination(Number(query.page), dataLimit);
@@ -1490,6 +1524,7 @@ const listPayments = async (query, scope) => {
 	const { sortBy, sortOrder } = buildPaymentSorting(query);
 	const payments = await prisma.payment.findMany({
 		where: { AND: andCondition },
+		include: paymentRelations,
 		omit: { checkoutUrl: true },
 		orderBy: { [sortBy]: sortOrder },
 		take: limit,
@@ -1521,6 +1556,7 @@ const getPaymentById$1 = async (paymentId, scope) => {
 			id: paymentId,
 			AND: andCondition
 		},
+		include: paymentRelations,
 		omit: { checkoutUrl: true }
 	});
 	if (!payment) throw new AppError(httpStatus.NOT_FOUND, "Payment not found");

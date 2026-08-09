@@ -63,7 +63,6 @@ const submitRentalRequest = async (
     },
   });
 };
-
 const listRentalRequests = async (
   query: GetRentalRequestsQuery,
   scope: Scope,
@@ -76,45 +75,45 @@ const listRentalRequests = async (
   const { sortBy, sortOrder } = buildRentalRequestSorting(query);
   const andCondition = buildRentalRequestFilters(query, scope);
 
-
   const requests = await prisma.rentalRequest.findMany({
-  where: {
-    AND: andCondition,
-  },
+    where: {
+      AND: andCondition,
+    },
 
-  include: {
-    tenant: {
-      select: {
-        id: true,
-        name: true,
-        email: true,
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+
+      property: {
+        select: {
+          id: true,
+          title: true,
+          location: true,
+          rent: true,
+        },
+      },
+
+      rentalAgreement: {
+        select: {
+          id: true,
+          status: true,
+          leaseEndDate: true,
+        },
       },
     },
 
-    property: {
-      select: {
-        id: true,
-        title: true,
-        location: true,
-        rent: true,
-      },
+    orderBy: {
+      [sortBy]: sortOrder,
     },
 
-    rentalAgreement: {
-      select: {
-        id: true,
-        status: true,
-      },
-    },
-  },
-
-  orderBy: {
-    [sortBy]: sortOrder,
-  },
-
-  take: pagination.limit,
-  skip: pagination.skip,
-})
+    take: pagination.limit,
+    skip: pagination.skip,
+  });
 
   const totalRequests = await prisma.rentalRequest.count({
     where: {
@@ -132,7 +131,6 @@ const listRentalRequests = async (
     requests,
   };
 };
-
 const updateRentalRequestStatus = async (
   landlordId: string,
   requestId: string,
@@ -145,7 +143,8 @@ const updateRentalRequestStatus = async (
         landlordId,
       },
     },
-    include: {
+    include
+: {
       property: {
         select: {
           id: true,
@@ -247,7 +246,6 @@ const updateRentalRequestStatus = async (
 
   return updatedStatus;
 };
-
 export const rentalRequestService = {
   updateRentalRequestStatus,
   submitRentalRequest,
