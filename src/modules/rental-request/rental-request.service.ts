@@ -63,6 +63,7 @@ const submitRentalRequest = async (
     },
   });
 };
+
 const listRentalRequests = async (
   query: GetRentalRequestsQuery,
   scope: Scope,
@@ -103,6 +104,11 @@ const listRentalRequests = async (
           id: true,
           status: true,
           leaseEndDate: true,
+          review: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
     },
@@ -131,6 +137,7 @@ const listRentalRequests = async (
     requests,
   };
 };
+
 const updateRentalRequestStatus = async (
   landlordId: string,
   requestId: string,
@@ -143,8 +150,7 @@ const updateRentalRequestStatus = async (
         landlordId,
       },
     },
-    include
-: {
+    include: {
       property: {
         select: {
           id: true,

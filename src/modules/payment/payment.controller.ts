@@ -18,8 +18,8 @@ const getPayments = catchAsync(async (req, res) => {
     statusCode: status.OK,
     success: true,
     message: "Payments retrieved successfully",
-    
-    data:{meta, payments},
+
+    data: { meta, payments },
   });
 });
 
@@ -39,6 +39,20 @@ const getPaymentById = catchAsync(async (req, res) => {
   });
 });
 
+const getTenantPaymentBySessionId = catchAsync(async (req, res) => {
+  const payment = await paymentService.getTenantPaymentBySessionId(
+    req.params.sessionId as string,
+    req.user?.id as string,
+  );
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Payment session retrieved successfully",
+    data: payment,
+  });
+});
+
 const handleStripeWebhook = catchAsync(async (req, res) => {
   await paymentService.handleStripeWebhook(
     req.body,
@@ -54,8 +68,8 @@ const handleStripeWebhook = catchAsync(async (req, res) => {
 
 const createCheckoutSession = catchAsync(async (req, res) => {
   const checkoutSession = await paymentService.createCheckoutSession(
-    req.user?. id as string,
-    req.user?. email as string,
+    req.user?.id as string,
+    req.user?.email as string,
     req.params.agreementId as string,
   );
 
@@ -102,4 +116,5 @@ export const paymentController = {
   getPayments,
   getPaymentById,
   successPayment,
+  getTenantPaymentBySessionId,
 };

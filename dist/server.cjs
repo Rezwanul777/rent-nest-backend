@@ -1080,7 +1080,8 @@ const listRentalRequests = async (query, scope) => {
 			} },
 			rentalAgreement: { select: {
 				id: true,
-				status: true
+				status: true,
+				leaseEndDate: true
 			} }
 		},
 		orderBy: { [sortBy]: sortOrder },
@@ -1299,16 +1300,37 @@ const listRentalAgreements = async (query, scope) => {
 };
 const updateRentalAgreementStatus$1 = async (tenantId, rentalAgreementId, payload) => {
 	if (![RentalAgreementStatus.COMPLETED, RentalAgreementStatus.TERMINATED].includes(payload.status)) throw new AppError(http_status.default.BAD_REQUEST, "Invalid rental agreement status");
-	if (!await prisma.rentalAgreement.findFirst({ where: {
-		id: rentalAgreementId,
-		tenantId,
-		status: "ACTIVE"
-	} })) throw new AppError(http_status.default.NOT_FOUND, "No agreement found to update");
-	return prisma.rentalAgreement.update({
+	const rentalAgreement = await prisma.rentalAgreement.findUnique({
 		where: { id: rentalAgreementId },
-		data: { status: payload.status },
-		select: { status: true }
+		select: {
+			id: true,
+			tenantId: true,
+			status: true,
+			leaseEndDate: true
+		}
 	});
+	if (!rentalAgreement) throw new AppError(http_status.default.NOT_FOUND, "Rental agreement not found");
+	if (rentalAgreement.tenantId !== tenantId) throw new AppError(http_status.default.FORBIDDEN, "You cannot update another tenant's rental agreement");
+	if (rentalAgreement.status === payload.status) return { status: rentalAgreement.status };
+	if (rentalAgreement.status !== RentalAgreementStatus.ACTIVE) throw new AppError(http_status.default.CONFLICT, `Only an active rental agreement can be marked as ${payload.status.toLowerCase()}`);
+	if (payload.status === RentalAgreementStatus.COMPLETED && rentalAgreement.leaseEndDate.getTime() > Date.now()) throw new AppError(http_status.default.BAD_REQUEST, "This rental cannot be completed before its lease end date");
+	if ((await prisma.rentalAgreement.updateMany({
+		where: {
+			id: rentalAgreementId,
+			tenantId,
+			status: RentalAgreementStatus.ACTIVE
+		},
+		data: { status: payload.status }
+	})).count === 1) return { status: payload.status };
+	const latestAgreement = await prisma.rentalAgreement.findUnique({
+		where: { id: rentalAgreementId },
+		select: {
+			tenantId: true,
+			status: true
+		}
+	});
+	if (latestAgreement?.tenantId === tenantId && latestAgreement.status === payload.status) return { status: latestAgreement.status };
+	throw new AppError(http_status.default.CONFLICT, "Rental agreement status changed. Refresh and try again.");
 };
 const rentalAgreementService = {
 	listRentalAgreements,
@@ -1352,7 +1374,8 @@ const rentalAgreementcontroller = {
 		sendResponse(res, {
 			statusCode: http_status.default.OK,
 			success: true,
-			message: `Rental agreement status updated to ${updatedData.status} successfully`
+			message: `Rental agreement status updated to ${updatedData.status} successfully`,
+			data: updatedData
 		});
 	})
 };

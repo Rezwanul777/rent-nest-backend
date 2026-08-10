@@ -1,5 +1,5 @@
 import status from "http-status";
-import { RentalAgreementStatus } from "../../generated/prisma/enums";
+import { PaymentStatus, RentalAgreementStatus } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import AppError from "../../utils/AppError";
 import { GetReviewsQuery } from "./review.interface";
@@ -12,30 +12,66 @@ const createReview = async (
   rentalAgreementId: string,
   payload: CreateReview,
 ) => {
-  const validRentalAgreement = await prisma.rentalAgreement.findFirst({
+  const rentalAgreement = await prisma.rentalAgreement.findUnique({
     where: {
       id: rentalAgreementId,
-      tenantId: tenantId,
-      status: {
-        in: [RentalAgreementStatus.COMPLETED, RentalAgreementStatus.TERMINATED],
+    },
+    select: {
+      tenantId: true,
+      propertyId: true,
+      status: true,
+
+      review: {
+        select: {
+          id: true,
+        },
+      },
+
+      payments: {
+        where: {
+          status: PaymentStatus.PAID,
+        },
+        select: {
+          id: true,
+        },
+        take: 1,
       },
     },
   });
 
-  if (!validRentalAgreement) {
+  if (!rentalAgreement) {
     throw new AppError(
       status.NOT_FOUND,
-      "No reviewable rental agreement was found",
+      "Rental agreement not found",
     );
   }
 
-  const existingReview = await prisma.review.findUnique({
-    where: {
-      rentalAgreementId,
-    },
-  });
+  if (rentalAgreement.tenantId !== tenantId) {
+    throw new AppError(
+      status.FORBIDDEN,
+      "You cannot review another tenant's rental agreement",
+    );
+  }
 
-  if (existingReview) {
+  const isReviewableStatus =
+    rentalAgreement.status === RentalAgreementStatus.ACTIVE ||
+    rentalAgreement.status === RentalAgreementStatus.COMPLETED;
+
+  if (!isReviewableStatus) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "Only active or completed rentals can be reviewed",
+    );
+  }
+
+  if (rentalAgreement.payments.length === 0) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "A successful payment is required before leaving a review",
+    );
+  }
+
+  if (rentalAgreement.review) {
     throw new AppError(
       status.CONFLICT,
       "Review already submitted for this agreement",
@@ -47,17 +83,21 @@ const createReview = async (
       ...payload,
       tenantId,
       rentalAgreementId,
-      propertyId: validRentalAgreement.propertyId,
+      propertyId: rentalAgreement.propertyId,
     },
     select: {
       id: true,
       rating: true,
       comment: true,
+      createdAt: true,
+
       tenant: {
         select: {
+          id: true,
           name: true,
         },
       },
+
       property: {
         select: {
           id: true,

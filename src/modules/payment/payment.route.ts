@@ -25,10 +25,18 @@ router.get(
 );
 
 router.get(
+  "/session/:sessionId",
+  authenticate,
+  authorize(UserRole.TENANT),
+  paymentController.getTenantPaymentBySessionId,
+);
+
+router.get(
   "/:paymentId",
   authenticate,
   authorize(UserRole.TENANT, UserRole.LANDLORD, UserRole.ADMIN),
   paymentController.getPaymentById,
 );
+
 
 export const paymentRoutes = router;

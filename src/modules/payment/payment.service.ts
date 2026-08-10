@@ -29,6 +29,12 @@ const paymentRelations = {
       id: true,
       status: true,
 
+      review: {
+        select: {
+          id: true,
+        },
+      },
+
       tenant: {
         select: {
           id: true,
@@ -49,8 +55,6 @@ const paymentRelations = {
   },
 } satisfies Prisma.PaymentInclude;
 
-
-
 const listPayments = async (query: GetPaymentsQuery, scope: Scope) => {
   const dataLimit = Number(query.limit);
   const currentPage = Number(query.page);
@@ -61,23 +65,23 @@ const listPayments = async (query: GetPaymentsQuery, scope: Scope) => {
   const { sortBy, sortOrder } = buildPaymentSorting(query);
 
   const payments = await prisma.payment.findMany({
-  where: {
-    AND: andCondition,
-  },
+    where: {
+      AND: andCondition,
+    },
 
-  include: paymentRelations,
+    include: paymentRelations,
 
-  omit: {
-    checkoutUrl: true,
-  },
+    omit: {
+      checkoutUrl: true,
+    },
 
-  orderBy: {
-    [sortBy]: sortOrder,
-  },
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
 
-  take: limit,
-  skip,
-});
+    take: limit,
+    skip,
+  });
 
   const totalPayments = await prisma.payment.count({
     where: {
@@ -119,18 +123,18 @@ const getPaymentById = async (paymentId: string, scope: Scope) => {
       break;
   }
 
- const payment = await prisma.payment.findFirst({
-  where: {
-    id: paymentId,
-    AND: andCondition,
-  },
+  const payment = await prisma.payment.findFirst({
+    where: {
+      id: paymentId,
+      AND: andCondition,
+    },
 
-  include: paymentRelations,
+    include: paymentRelations,
 
-  omit: {
-    checkoutUrl: true,
-  },
-});
+    omit: {
+      checkoutUrl: true,
+    },
+  });
   if (!payment) {
     throw new AppError(status.NOT_FOUND, "Payment not found");
   }
@@ -138,17 +142,35 @@ const getPaymentById = async (paymentId: string, scope: Scope) => {
   return payment;
 };
 
+const getTenantPaymentBySessionId = async (
+  sessionId: string,
+  tenantId: string,
+) => {
+  const payment = await prisma.payment.findFirst({
+    where: {
+      stripeSessionId: sessionId,
+      rentalAgreement: {
+        tenantId,
+      },
+    },
+    include: paymentRelations,
+    omit: {
+      checkoutUrl: true,
+    },
+  });
 
+  if (!payment) {
+    throw new AppError(status.NOT_FOUND, "Payment session not found");
+  }
+
+  return payment;
+};
 
 const handleStripeWebhook = async (payload: Buffer, signature: string) => {
   let event: Stripe.Event;
-const endpointSecret = config.stripe_webhook_secret;
+  const endpointSecret = config.stripe_webhook_secret;
   try {
-    event = stripe.webhooks.constructEvent(
-      payload,
-      signature,
-      endpointSecret,
-    );
+    event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
   } catch (error) {
     throw new AppError(
       status.BAD_REQUEST,
@@ -330,16 +352,10 @@ const createCheckoutSession = async (
   });
 
   if (!rentalAgreement) {
-    throw new AppError(
-      status.NOT_FOUND,
-      "Rental agreement not found",
-    );
+    throw new AppError(status.NOT_FOUND, "Rental agreement not found");
   }
 
-  if (
-    rentalAgreement.status !==
-    RentalAgreementStatus.PENDING_PAYMENT
-  ) {
+  if (rentalAgreement.status !== RentalAgreementStatus.PENDING_PAYMENT) {
     throw new AppError(
       status.BAD_REQUEST,
       "Payment is not available for this agreement",
@@ -364,10 +380,7 @@ const createCheckoutSession = async (
       where: {
         rentalAgreementId,
         status: {
-          in: [
-            PaymentStatus.PENDING,
-            PaymentStatus.PROCESSING,
-          ],
+          in: [PaymentStatus.PENDING, PaymentStatus.PROCESSING],
         },
       },
       orderBy: {
@@ -396,15 +409,11 @@ const createCheckoutSession = async (
    * EXPIRED  -> continue and create a new Stripe session
    */
   if (payment.stripeSessionId) {
-    const existingSession =
-      await stripe.checkout.sessions.retrieve(
-        payment.stripeSessionId,
-      );
+    const existingSession = await stripe.checkout.sessions.retrieve(
+      payment.stripeSessionId,
+    );
 
-    if (
-      existingSession.status === "open" &&
-      existingSession.url
-    ) {
+    if (existingSession.status === "open" && existingSession.url) {
       return {
         checkoutUrl: existingSession.url,
       };
@@ -422,54 +431,48 @@ const createCheckoutSession = async (
    * There is no usable Stripe session, so create a new one.
    * This also handles an expired checkout session.
    */
-  const checkoutSession =
-    await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      customer_email: userEmail,
+  const checkoutSession = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    customer_email: userEmail,
 
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: payment.currency.toLowerCase(),
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: payment.currency.toLowerCase(),
 
-            unit_amount: Math.round(
-              Number(payment.amount) * 100,
-            ),
+          unit_amount: Math.round(Number(payment.amount) * 100),
 
-            product_data: {
-              name: rentalAgreement.property.title,
-              description: "RentNest rental payment",
-            },
+          product_data: {
+            name: rentalAgreement.property.title,
+            description: "RentNest rental payment",
           },
         },
-      ],
+      },
+    ],
 
-      success_url:
-        `${config.app_url}/payment/success` +
-        "?session_id={CHECKOUT_SESSION_ID}",
+    success_url:
+      `${config.app_url}/payment/success` + "?session_id={CHECKOUT_SESSION_ID}",
 
-      cancel_url: `${config.app_url}/payment/cancel`,
+    cancel_url: `${config.app_url}/payment/cancel`,
 
+    metadata: {
+      paymentId: payment.id,
+      rentalAgreementId,
+      rentalRequestId: rentalAgreement.rentalRequestId,
+      tenantId,
+    },
+
+    payment_intent_data: {
       metadata: {
         paymentId: payment.id,
         rentalAgreementId,
-        rentalRequestId:
-          rentalAgreement.rentalRequestId,
+        rentalRequestId: rentalAgreement.rentalRequestId,
         tenantId,
       },
-
-      payment_intent_data: {
-        metadata: {
-          paymentId: payment.id,
-          rentalAgreementId,
-          rentalRequestId:
-            rentalAgreement.rentalRequestId,
-          tenantId,
-        },
-      },
-    });
+    },
+  });
 
   if (!checkoutSession.url) {
     throw new AppError(
@@ -549,4 +552,5 @@ export const paymentService = {
   handleStripeWebhook,
   listPayments,
   getPaymentById,
+  getTenantPaymentBySessionId,
 };
