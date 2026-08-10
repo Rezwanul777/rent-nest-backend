@@ -1046,7 +1046,8 @@ const listRentalRequests = async (query, scope) => {
 			rentalAgreement: { select: {
 				id: true,
 				status: true,
-				leaseEndDate: true
+				leaseEndDate: true,
+				review: { select: { id: true } }
 			} }
 		},
 		orderBy: { [sortBy]: sortOrder },
@@ -1357,25 +1358,41 @@ const rentalAgreementRoutes = router$2;
 //#region src/modules/review/review.service.ts
 const SORT_ORDERS$1 = ["asc", "desc"];
 const createReview$1 = async (tenantId, rentalAgreementId, payload) => {
-	const validRentalAgreement = await prisma.rentalAgreement.findFirst({ where: {
-		id: rentalAgreementId,
-		tenantId,
-		status: { in: [RentalAgreementStatus.COMPLETED, RentalAgreementStatus.TERMINATED] }
-	} });
-	if (!validRentalAgreement) throw new AppError(httpStatus.NOT_FOUND, "No reviewable rental agreement was found");
-	if (await prisma.review.findUnique({ where: { rentalAgreementId } })) throw new AppError(httpStatus.CONFLICT, "Review already submitted for this agreement");
+	const rentalAgreement = await prisma.rentalAgreement.findUnique({
+		where: { id: rentalAgreementId },
+		select: {
+			tenantId: true,
+			propertyId: true,
+			status: true,
+			review: { select: { id: true } },
+			payments: {
+				where: { status: PaymentStatus.PAID },
+				select: { id: true },
+				take: 1
+			}
+		}
+	});
+	if (!rentalAgreement) throw new AppError(httpStatus.NOT_FOUND, "Rental agreement not found");
+	if (rentalAgreement.tenantId !== tenantId) throw new AppError(httpStatus.FORBIDDEN, "You cannot review another tenant's rental agreement");
+	if (!(rentalAgreement.status === RentalAgreementStatus.ACTIVE || rentalAgreement.status === RentalAgreementStatus.COMPLETED)) throw new AppError(httpStatus.BAD_REQUEST, "Only active or completed rentals can be reviewed");
+	if (rentalAgreement.payments.length === 0) throw new AppError(httpStatus.BAD_REQUEST, "A successful payment is required before leaving a review");
+	if (rentalAgreement.review) throw new AppError(httpStatus.CONFLICT, "Review already submitted for this agreement");
 	return prisma.review.create({
 		data: {
 			...payload,
 			tenantId,
 			rentalAgreementId,
-			propertyId: validRentalAgreement.propertyId
+			propertyId: rentalAgreement.propertyId
 		},
 		select: {
 			id: true,
 			rating: true,
 			comment: true,
-			tenant: { select: { name: true } },
+			createdAt: true,
+			tenant: { select: {
+				id: true,
+				name: true
+			} },
 			property: { select: {
 				id: true,
 				title: true
@@ -1528,6 +1545,7 @@ const stripe = new Stripe(config_default.stripe_secret_key);
 const paymentRelations = { rentalAgreement: { select: {
 	id: true,
 	status: true,
+	review: { select: { id: true } },
 	tenant: { select: {
 		id: true,
 		name: true,
@@ -1583,6 +1601,18 @@ const getPaymentById$1 = async (paymentId, scope) => {
 		omit: { checkoutUrl: true }
 	});
 	if (!payment) throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+	return payment;
+};
+const getTenantPaymentBySessionId$1 = async (sessionId, tenantId) => {
+	const payment = await prisma.payment.findFirst({
+		where: {
+			stripeSessionId: sessionId,
+			rentalAgreement: { tenantId }
+		},
+		include: paymentRelations,
+		omit: { checkoutUrl: true }
+	});
+	if (!payment) throw new AppError(httpStatus.NOT_FOUND, "Payment session not found");
 	return payment;
 };
 const handleStripeWebhook$1 = async (payload, signature) => {
@@ -1710,7 +1740,8 @@ const paymentService = {
 	createCheckoutSession: createCheckoutSession$1,
 	handleStripeWebhook: handleStripeWebhook$1,
 	listPayments,
-	getPaymentById: getPaymentById$1
+	getPaymentById: getPaymentById$1,
+	getTenantPaymentBySessionId: getTenantPaymentBySessionId$1
 };
 //#endregion
 //#region src/modules/payment/payment.controller.ts
@@ -1734,6 +1765,15 @@ const getPaymentById = catchAsync(async (req, res) => {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: "Payment retrieved successfully",
+		data: payment
+	});
+});
+const getTenantPaymentBySessionId = catchAsync(async (req, res) => {
+	const payment = await paymentService.getTenantPaymentBySessionId(req.params.sessionId, req.user?.id);
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Payment session retrieved successfully",
 		data: payment
 	});
 });
@@ -1779,7 +1819,8 @@ const paymentController = {
 	handleStripeWebhook,
 	getPayments,
 	getPaymentById,
-	successPayment
+	successPayment,
+	getTenantPaymentBySessionId
 };
 //#endregion
 //#region src/modules/payment/payment.route.ts
@@ -1788,6 +1829,7 @@ router.post("/webhook", paymentController.handleStripeWebhook);
 router.get("/success", paymentController.successPayment);
 router.post("/rental-agreements/:agreementId/checkout", authenticate, authorize(UserRole.TENANT), paymentController.createCheckoutSession);
 router.get("/", authenticate, authorize(UserRole.TENANT, UserRole.LANDLORD, UserRole.ADMIN), paymentController.getPayments);
+router.get("/session/:sessionId", authenticate, authorize(UserRole.TENANT), paymentController.getTenantPaymentBySessionId);
 router.get("/:paymentId", authenticate, authorize(UserRole.TENANT, UserRole.LANDLORD, UserRole.ADMIN), paymentController.getPaymentById);
 const paymentRoutes = router;
 //#endregion
